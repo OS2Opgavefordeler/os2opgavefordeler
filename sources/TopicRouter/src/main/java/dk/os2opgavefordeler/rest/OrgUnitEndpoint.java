@@ -2,6 +2,7 @@ package dk.os2opgavefordeler.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import dk.os2opgavefordeler.LoggedInUser;
 import dk.os2opgavefordeler.auth.AuthService;
 import dk.os2opgavefordeler.auth.MunicipalityAdminRequired;
 import dk.os2opgavefordeler.auth.UserLoggedIn;
@@ -42,6 +43,7 @@ import java.util.Optional;
 @RequestScoped
 public class OrgUnitEndpoint extends Endpoint {
 	public static final String FILE = "file";
+
 	@Inject
 	Logger log;
 
@@ -57,11 +59,8 @@ public class OrgUnitEndpoint extends Endpoint {
 	@Context
 	private HttpServletRequest request;
 
-	@Inject
-	private UserRepository userRepository;
-
-	@Inject
-	private AuthService authService;
+	@Inject @LoggedInUser
+	private User user;
 
 	@GET
 	@Path("/")
@@ -71,7 +70,7 @@ public class OrgUnitEndpoint extends Endpoint {
 		try {
 			Validate.nonZero(municipalityId, "Invalid municipalityId");
 			List<OrgUnitPO> ou = new ArrayList<>();
-			if (employmentId != null && employmentId > 0l) {
+			if (employmentId != null && employmentId > 0L) {
 				ou = orgUnitService.getManagedOrgUnitsPO(municipalityId, employmentId);
 			} else {
 				ou = orgUnitService.getToplevelOrgUnitPO(municipalityId);
@@ -79,12 +78,12 @@ public class OrgUnitEndpoint extends Endpoint {
 
 
 			if (!ou.isEmpty()) {
-				return Response.ok().entity(ou).build();
+				return ok(ou);
 			} else {
-				return Response.status(404).build();
+				return notFound();
 			}
 		} catch (BadRequestArgumentException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			return badRequest(e.getMessage());
 		}
 	}
 
@@ -102,7 +101,7 @@ public class OrgUnitEndpoint extends Endpoint {
 					() -> Response.status(404)
 			).build();
 		} catch (BadRequestArgumentException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			return badRequest(e.getMessage());
 		}
 	}
 
@@ -120,7 +119,7 @@ public class OrgUnitEndpoint extends Endpoint {
 					() -> Response.status(404)
 			).build();
 		} catch (BadRequestArgumentException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			return badRequest(e.getMessage());
 		}
 	}
 
@@ -131,12 +130,9 @@ public class OrgUnitEndpoint extends Endpoint {
 	@Deprecated
 	@MunicipalityAdminRequired
 	public Response importOrg(OrgUnit input) {
-		Municipality currentMunicipality = userRepository.findByEmail(authService.getAuthentication().getEmail()).getMunicipality();
-		fixupOrgUnit(input, currentMunicipality);
-
+		fixupOrgUnit(input, user.getMunicipality());
 		orgUnitService.importOrganization(input);
-
-		return Response.ok().build();
+		return ok();
 	}
 
 
@@ -159,13 +155,11 @@ public class OrgUnitEndpoint extends Endpoint {
 			}
 		}
 
-		User u = userRepository.findByEmail(authService.getAuthentication().getEmail());
-
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			OrgUnitDTO orgUnitDTO = mapper.readValue(completeString.toString(), OrgUnitDTO.class);
 
-			OrgUnit o = importService.importOrganization(u.getMunicipality().getId(), orgUnitDTO);
+			OrgUnit o = importService.importOrganization(user.getMunicipality().getId(), orgUnitDTO);
 
 
 			log.info("Imported the following OrgUnit: {}", o.toString());
@@ -182,7 +176,7 @@ public class OrgUnitEndpoint extends Endpoint {
 			log.error("Error while mapping JSON: ", e);
 		}
 
-		return Response.ok().build();
+		return ok();
 	}
 
 	private void fixupOrgUnit(OrgUnit input, Municipality municipality) {
