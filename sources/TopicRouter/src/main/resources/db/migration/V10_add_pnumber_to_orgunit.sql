@@ -1,0 +1,1 @@
+ALTER TABLE orgunit ADD COLUMN pnumber TEXT;
