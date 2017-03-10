@@ -10,6 +10,8 @@
 		'ui.bootstrap',
 		'ui.router',
 		'ui.uploader',
+		'ui.tree',
+		'ui.indeterminate',
 		'app.config'
 	]);
 
@@ -41,6 +43,13 @@
 					templateUrl: '/app/layout/login.html',
 					controller: 'LoginCtrl',
 					controllerAs: 'vm'
+				})
+				.state('kleadmin', {
+					url: "/kleadmin",
+					templateUrl: '/app/kle-admin/kle-admin.html',
+					controller: 'KleAdminCtrl',
+					controllerAs: 'vm',
+					//scope: '{}'
 				});
 		$urlRouterProvider.otherwise('/');
 	}
