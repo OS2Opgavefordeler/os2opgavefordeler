@@ -45,9 +45,7 @@
     </distributionManagement>
 
     <modules>
-        <module>environment</module>
         <module>sources/TopicRouter</module>
-        <!-- make frontend module which uses gulp based build -->
         <!--<module>sources/frontend</module>-->
     </modules>
 
