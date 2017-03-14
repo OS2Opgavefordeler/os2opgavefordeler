@@ -1,0 +1,9 @@
+@startuml
+
+Systemadmin --> (OpgaveFordeler)
+Kommuneadmin --> (OpgaveFordeler)
+Bruger --> (OpgaveFordeler)
+
+(OpgaveFordeler) <-- KommunesItSystem
+
+@enduml
