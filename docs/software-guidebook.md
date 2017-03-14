@@ -2,13 +2,15 @@ Software Guidebook for OS2 OpgaveFordeler
 =========================================
 
 # 1. Introduktion
-Dette skriv giver et overblik for hvordan det er tænkt at lave OS2 OpgaveFordeler. Det inkluderer følgende:
+OS2OpgaveFordeler er en applikation til kommuner som kan bruges i integrationsmæssig øjemed til opslag af hvilken afdeling eller medarbejder der håndterer 
+henvendelser ud fra angivelse af KLE nummer.
 
-1. Krav, constraints og principper.
-2. Software arkitekturen.
+Applikationen indeholder udover et endpoint til integrationsmæssig brug også en webapplikation til angivelse af disse relationer om hvor opgaver bliver løst.
+ 
+OpgaveFordeler tilbydes som hosted løsning af Miracle A/S. For mere information om det at få din kommune på OpgaveFordeleren, kontakt da Lise Vestergaard (liv@miracle.dk)
 
 # 2. Kontekst
-OS2 OpgaveFordeler laves som java applikation med REST interface samt tilhørende webapplikation. 
+OS2 OpgaveFordeler laves som java applikation med REST interface til frontend og som api, samt tilhørende webapplikation. 
 REST interface giver mulighed for opslag for mapningen mellem KLE-numre og ansvarlig entitet for håndtering af denne.
 Webapplikationen giver mulighed for at vedligholde de tilgængelige data/relationer.
 Følgende konteksdiagram viser applikation og aktører:
@@ -30,24 +32,20 @@ Denne bruger kan lave fordelinger af samt flytte ansvar for opgaver. Dette er de
 
 Eksterne systemer
 ---
-Der er flere eksterne systemer som interagerer med OS2 OpgaveFordeler.
+Kommunen kan via REST benytte api'et til en hvilken som helst egen service. Dette gælder for opslag angående fordelinger, såvel som aflevering af organisationsdata.
 
-**1. KL Mox agent** Dette system leverer KLE strukturen som repræsenterer en kommunernes opgaver.
-
-**2. Kommuners Mox agent** Disse systemer leverer information om kommuners organisationsstruktur.
-
-**3. Kommunale systemer** Disse systemer trækker oplysninger om en kommunes delegering af et KLE-nummer.
+**1. Kommunale systemer** Disse systemer trækker oplysninger om en kommunes delegering af et KLE-nummer.
 
 # 3. Funktionelt Overblik
 OS2 OpgaveFordeler handler om en kommunes forbindelse mellem KLE-numre og den entitet der håndterer det pågældende emne hvad enten det er en afdeling eller en medarbejder.
 
 KLE-numre
 ---
-KLE-numre kommer fra KL og indlæses via mox agent eller en sysadmin. KLE-strukturen er fælles for alle kommuner.
+KLE-numre kommer fra KL og indlæses af sysadmin. KLE-strukturen er fælles for alle kommuner. OpgaveFordeleren understøtter kommunespecifikke KLE-numre.
 
 Kommuner og Organisationsstruktur
 ---
-Hver kommune kan oprettes som selvstændig enhed i applikationen. De har administratorer som vedligholder kommunens organisationsstruktur og har derudover brugere der vedligholder mapning mellem KLE-numre og afdelinger eller medarbejdere.
+Hver kommune oprettes som selvstændig enhed i applikationen. De har administratorer som vedligholder kommunens organisationsstruktur og har derudover brugere der vedligholder mapning mellem KLE-numre og afdelinger eller medarbejdere.
 
 Kommuner oprettes og vedligholdes overordnet set af sysadmin.
 
@@ -58,22 +56,13 @@ Oplysninger om hvem der håndterer KLE-numre for en kommune, kan trækkes via RE
 # 4. Quality Attributes/Nonfunktionelle krav
 Performance
 ---
-Alle funktioner i OS2 OpgaveFordeler skal svare på under n sekunder for n samtidige brugere.
-REST interface skal kunne håndtere nn/s.
-
-Scalability
----
-OS2 OpgaveFordeler skal kunne skalere til n gange forventet anvendelse.
-
-- 10 gange eksisterende KLE-numre (nn).
-- nn kommuner med:
-  - nnn afdelinger.
-  - nnn brugere.
-  - nnn fordelinger.
+Der er ikke angivet specifikke krav for performance og der er pt. ikke en opgørelse af realiseret performance. For organisationsupload skal forventes en 
+vis svartid. Dette gældre også hvis man ønsker samtlige medarbejdere i organisationen listet. Ellers er applikationen bygget op på en måde som giver en 
+svartider <2 sekunder.  
 
 Availability
 ---
-Applikationen skal være tilgængelig ...
+Applikationen kører hele døgnet og er kun nede når hosting provider har service vindue.
 
 Internationalisation
 ---
@@ -113,15 +102,15 @@ Der anvendes PresentationObjects (PO) til kommunikation.
 
 Continuos integration
 ---
-Der etableres continuos integration til web interface og java applikation.
+Applikationen er knyttet til continous integration som kører compile og tests for backend. 
 
 Automated testing
 ---
-Der etableres automatisk afvikling af unit tests.
+Der er pt. ikke automatiseret test suite.
 
 Configuration
 ---
-Al konfiguration vil foregå i .properties filer for at holde det ude af applikatonen og styre deployment på tværs af miljøer.
+Al konfiguration foregår via property files, system properties i JBoss og kommandolinieparametre.
 
 # 7. Software Arkitektur
 Her følger et overblik over arkitekturen.
@@ -225,11 +214,11 @@ Deploymentprocedure er som følger:
 
 - Check persistence.xml ikke har dev settings som create-drop!
 - Opdater versioner. Backend i maven og frontend i config.json.
-- Byg backend release med mvn i parent dir og -P 'target-test' eller 'target-prod' alt efter hvor du skal deploye - så sørger maven for de korrekte properties.
+- Byg backend release med mvn i parent dir og -Denv=test|prod alt efter hvor du skal deploye - så sørger maven for de korrekte properties.
 - Byg frontend med `gulp clean-build-app-<env>` hvor env er test eller prod alt efter hvor der skal deployes
-- Kopier fra /sources/frontend/src/main/webapp/dist.<env> hvor <env> er test eller prod til server:~/deploy/web 
 - Kopier /sources/TopicRouter/target/TopicRouter.war til server. E.g. med scp: scp /sti/til/war ssh-config-profil:~/ 
-- Der ligger deploy script til frontend. Pak jar filen ud i /home/miracle/deploy/web/ og kør scriptet.
+- Kopier fra /sources/frontend/src/main/webapp/dist.<env> hvor <env> er test eller prod til server:~/deploy/web 
+- Der ligger deploy script til frontend. Pak jar filen ud i /home/miracle/deploy/web/ og kør scriptet. Deployment af frontend for egen hosting er i den folder som jeres webserver peger på.
 - Kopier backend war fil til /tmp/ eller andet og deploy med cli via ~/jboss-cli.sh
  
 Der bruges semantic versioning med mm.ss.pp hvor mm er hovedreleases, ss er mindre og pp er patches.
