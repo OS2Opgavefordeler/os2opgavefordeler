@@ -1,5 +1,7 @@
 package dk.os2opgavefordeler.service.impl;
 
+import dk.os2opgavefordeler.LoggedInUser;
+import dk.os2opgavefordeler.model.User;
 import dk.os2opgavefordeler.repository.MunicipalityRepository;
 import dk.os2opgavefordeler.model.DistributionRule;
 import dk.os2opgavefordeler.model.Kle;
@@ -43,6 +45,9 @@ public class MunicipalityServiceImpl implements MunicipalityService {
 
 	@Inject
 	private MunicipalityRepository municipalityRepository;
+
+	@Inject @LoggedInUser
+	private User currentUser;
 
 	@Override
 	public Municipality createMunicipality(Municipality municipality) {
@@ -123,7 +128,7 @@ public class MunicipalityServiceImpl implements MunicipalityService {
 				throw new ValidationException("Angivne nummer anvendes allerede af anden kle.");
 			}
 		}
-		Municipality municipality = getMunicipality(kle.getMunicipalityId());
+		Municipality municipality = currentUser.getMunicipality();
 		if(kle.getId() > 0l){ // update
 			Kle existing = kleService.getKle(kle.getId());
 			existing.setNumber(kle.getNumber());
