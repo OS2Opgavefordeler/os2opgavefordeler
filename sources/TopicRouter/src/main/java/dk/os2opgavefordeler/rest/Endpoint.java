@@ -20,7 +20,7 @@ public abstract class Endpoint {
 	 * @param reason The plain text error message wanted as 'entity'.
 	 * @return a built Response with status 'bad request', type 'text/plain' and 'reason' as entity.
 	 */
-	Response badRequest(String reason) {
+	protected Response badRequest(String reason) {
 		return Response.status(BAD_REQUEST).type(TEXT_PLAIN).entity(reason).build();
 	}
 
@@ -29,7 +29,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with status ok and no entity set.
 	 */
-	Response ok() {
+	protected Response ok() {
 		return Response.ok().build();
 	}
 
@@ -39,7 +39,7 @@ public abstract class Endpoint {
 	 * @param result The Object wanted as 'entity'
 	 * @return a built Response with status ok and 'result' as entity.
 	 */
-  Response ok(Object result) {
+  protected Response ok(Object result) {
 		return Response.ok().entity(result).build();
 	}
 
