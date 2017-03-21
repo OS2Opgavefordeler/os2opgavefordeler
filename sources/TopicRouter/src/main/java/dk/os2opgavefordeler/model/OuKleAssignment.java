@@ -24,9 +24,9 @@ public class OuKleAssignment {
 	
 	@ManyToOne
 	private Kle kle;
-	
-        @Enumerated(EnumType.STRING)
-	@Column(name="assignmentType", nullable = false)
+
+	@Enumerated(EnumType.STRING)
+	@Column(name="assignment_type", nullable = false)
 	private KleAssignmentType assignmentType;
 	
 	public OuKleAssignment() { }
