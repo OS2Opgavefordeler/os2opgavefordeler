@@ -29,135 +29,134 @@ import static org.junit.Assert.assertEquals;
 @TestControl(projectStage = ProjectStage.Development.class)
 public class DistributionRuleFilterTest {
 
-    @Inject
-    private DistributionService distributionService;
+	@Inject
+	private DistributionService distributionService;
 
-    @Inject
-    private MunicipalityService municipalityService;
+	@Inject
+	private MunicipalityService municipalityService;
 
-    @Inject
-    private KleService kleService;
+	@Inject
+	private KleService kleService;
 
-    @Inject
-    private EntityManager entityManager;
+	@Inject
+	private EntityManager entityManager;
 
-    @Inject
-    private KleRepository kleRepository;
+	@Inject
+	private KleRepository kleRepository;
 
-    @Inject
-    private FindAssignedForKleService findAssignedForKleService;
+	@Inject
+	private FindAssignedForKleService findAssignedForKleService;
 
-    @Inject
-    private BootstrappingDataProviderSingleton bootstrap;
+	@Inject
+	private BootstrappingDataProviderSingleton bootstrap;
 
-    @Inject
-    private DistributionRuleRepository repository;
+	@Inject
+	private DistributionRuleRepository repository;
 
-    @Test
-    public void testIfNoRulesUseDefault() throws Exception {
-        Municipality municipality = new Municipality("test");
-        Kle kle = new Kle("1.1.1", "test kle", "blank", DateTime.now().toDate());
-        kle.setMunicipality(municipality);
-        kleRepository.save(kle);
+	@Test
+	public void testIfNoRulesUseDefault() throws Exception {
 
-        OrgUnit orgUnit = OrgUnit.builder()
-                .name("f")
-                .email("e@f.dk")
-                .esdhId("foo")
-                .esdhLabel("flaf")
-                .phone("l")
-                .isActive(true)
-                .municipality(municipality)
-                .businessKey("businessKey")
-                .build();
+		Municipality municipality = new Municipality("test");
+		Kle kle = new Kle("1.1.1", "test kle", "blank", DateTime.now().toDate());
+		kle.setMunicipality(municipality);
+		kleRepository.save(kle);
 
-        municipalityService.createMunicipality(municipality);
+		OrgUnit orgUnit = OrgUnit.builder()
+				.name("f")
+				.email("e@f.dk")
+				.esdhId("foo")
+				.esdhLabel("flaf")
+				.phone("l")
+				.isActive(true)
+				.municipality(municipality)
+				.businessKey("businessKey")
+				.build();
 
+		municipalityService.createMunicipality(municipality);
+		municipality = municipalityService.getMunicipality(municipality.getId());
 
-        DistributionRule distributionRule = new DistributionRule.Builder()
-                .kle(kle)
-                .municipality(municipality)
-                .responsibleOrg(orgUnit)
-                .build();
-        distributionRule.setAssignedOrg(orgUnit);
+		DistributionRule distributionRule = new DistributionRule.Builder()
+				.kle(kle)
+				.municipality(municipality)
+				.responsibleOrg(orgUnit)
+				.build();
+		distributionRule.setAssignedOrg(orgUnit);
 
-        distributionService.createDistributionRule(distributionRule);
-        Assignee assigned = findAssignedForKleService.findAssignedForKle(kle, municipality);
+		distributionService.createDistributionRule(distributionRule);
+		Assignee assigned = findAssignedForKleService.findAssignedForKle(kle, municipality);
 
-        assertEquals(orgUnit, assigned.getOrgUnit());
-    }
+		assertEquals(orgUnit, assigned.getOrgUnit());
+	}
 
-    @Test
-    @Ignore
-    public void testBootstrap() throws Exception{
-        bootstrap.bootstrap();
-    }
+	@Test
+	@Ignore
+	public void testBootstrap() throws Exception {
+		bootstrap.bootstrap();
+	}
 
-    @Test
-    public void testIfThereIsAFilterAndItMatchesReturnThat() throws Exception {
-        Kle kle = new Kle("1.1.1", "test kle", "blank", DateTime.now().toDate());
-        kleRepository.save(kle);
+	@Test
+	public void testIfThereIsAFilterAndItMatchesReturnThat() throws Exception {
+		Kle kle = new Kle("1.1.1", "test kle", "blank", DateTime.now().toDate());
+		kleRepository.save(kle);
 
-        Municipality municipality = new Municipality("test");
+		Municipality municipality = new Municipality("test");
 
-        OrgUnit orgUnit = OrgUnit.builder()
-                .name("f")
-                .email("e@f.dk")
-                .esdhId("foo")
-                .esdhLabel("flaf")
-                .phone("l")
-                .isActive(true)
-                .municipality(municipality)
-                .businessKey("businessKey")
-                .build();
+		OrgUnit orgUnit = OrgUnit.builder()
+				.name("f")
+				.email("e@f.dk")
+				.esdhId("foo")
+				.esdhLabel("flaf")
+				.phone("l")
+				.isActive(true)
+				.municipality(municipality)
+				.businessKey("businessKey")
+				.build();
 
-        OrgUnit correctOrgUnit = OrgUnit.builder()
-                .name("f")
-                .email("e@f.dk")
-                .esdhId("foo")
-                .esdhLabel("flaf")
-                .phone("l")
-                .isActive(true)
-                .municipality(municipality)
-                .businessKey("businessKey")
-                .build();
+		OrgUnit correctOrgUnit = OrgUnit.builder()
+				.name("f")
+				.email("e@f.dk")
+				.esdhId("foo")
+				.esdhLabel("flaf")
+				.phone("l")
+				.isActive(true)
+				.municipality(municipality)
+				.businessKey("businessKey")
+				.build();
 
-        municipalityService.createMunicipality(municipality);
+		municipalityService.createMunicipality(municipality);
 
-        entityManager.persist(orgUnit);
-        entityManager.persist(correctOrgUnit);
-
-
-
-        DistributionRule distributionRule = new DistributionRule.Builder()
-                .kle(kle)
-                .municipality(municipality)
-                .responsibleOrg(orgUnit)
-                .build();
-        distributionRule.setAssignedOrg(orgUnit);
-
-        CprDistributionRuleFilter dateFilter = new CprDistributionRuleFilter();
-        dateFilter.setAssignedOrg(correctOrgUnit);
-        dateFilter.setDistributionRule(distributionRule);
-        dateFilter.setName("cpr");
-        dateFilter.setDays("1-31");
-        dateFilter.setMonths("1-12");
+		entityManager.persist(orgUnit);
+		entityManager.persist(correctOrgUnit);
 
 
+		DistributionRule distributionRule = new DistributionRule.Builder()
+				.kle(kle)
+				.municipality(municipality)
+				.responsibleOrg(orgUnit)
+				.build();
+		distributionRule.setAssignedOrg(orgUnit);
 
-        //repository.save(distributionRule);
-
-        //entityManager.persist(dateFilter);
-        distributionRule.addFilter(dateFilter);
-
-        repository.save(distributionRule);
-
-        Map<String,String> filterParameters = new HashMap<>();
-        filterParameters.put("cpr", "141186-1145");
-
-        Assignee assignedForKle = findAssignedForKleService.findAssignedForKle(kle, municipality, filterParameters);
-        assertEquals(correctOrgUnit, assignedForKle.getOrgUnit());
+		CprDistributionRuleFilter dateFilter = new CprDistributionRuleFilter();
+		dateFilter.setAssignedOrg(correctOrgUnit);
+		dateFilter.setDistributionRule(distributionRule);
+		dateFilter.setName("cpr");
+		dateFilter.setDays("1-31");
+		dateFilter.setMonths("1-12");
 
 
-    }
+		//repository.save(distributionRule);
+
+		//entityManager.persist(dateFilter);
+		distributionRule.addFilter(dateFilter);
+
+		repository.save(distributionRule);
+
+		Map<String, String> filterParameters = new HashMap<>();
+		filterParameters.put("cpr", "141186-1145");
+
+		Assignee assignedForKle = findAssignedForKleService.findAssignedForKle(kle, municipality, filterParameters);
+		assertEquals(correctOrgUnit, assignedForKle.getOrgUnit());
+
+
+	}
 }
