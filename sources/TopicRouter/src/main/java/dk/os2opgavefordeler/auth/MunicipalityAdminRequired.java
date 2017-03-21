@@ -5,7 +5,7 @@ import org.apache.deltaspike.security.api.authorization.SecurityBindingType;
 import java.lang.annotation.*;
 
 /**
- * Created by rro rro@miracle.dk on 02-02-2017.
+ * @author rro@miracle.dk.
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
