@@ -59,7 +59,7 @@ public class OrgUnit implements Serializable, IHasChildren<OrgUnit> {
 	@OneToMany(mappedBy = "assignedOrg", cascade = CascadeType.REMOVE)
 	private List<DistributionRuleFilter> responsibleForFilters;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "ou")
 	private List<OuKleAssignment> kles = new ArrayList<>();
 
 	public OrgUnit() {
