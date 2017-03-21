@@ -10,8 +10,6 @@ import javax.ws.rs.core.Response.Status;
  */
 public abstract class Endpoint {
 
-	static final int PAYMENT_REQUIRED = 402;
-
 	static final String TEXT_PLAIN = "text/plain";
 
 	private static final Status BAD_REQUEST = Status.BAD_REQUEST;
@@ -22,7 +20,7 @@ public abstract class Endpoint {
 	 * @param reason The plain text error message wanted as 'entity'.
 	 * @return a built Response with status 'bad request', type 'text/plain' and 'reason' as entity.
 	 */
-	protected Response badRequest(String reason) {
+	Response badRequest(String reason) {
 		return Response.status(BAD_REQUEST).type(TEXT_PLAIN).entity(reason).build();
 	}
 
@@ -31,7 +29,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with status ok and no entity set.
 	 */
-	public Response ok() {
+	Response ok() {
 		return Response.ok().build();
 	}
 
@@ -41,7 +39,7 @@ public abstract class Endpoint {
 	 * @param result The Object wanted as 'entity'
 	 * @return a built Response with status ok and 'result' as entity.
 	 */
-	public Response ok(Object result) {
+  Response ok(Object result) {
 		return Response.ok().entity(result).build();
 	}
 
@@ -50,7 +48,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with status forbidden and no entity set.
 	 */
-	public Response forbidden() {
+	Response forbidden() {
 		return Response.status(Response.Status.FORBIDDEN).build();
 	}
 
@@ -59,7 +57,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with not found and no entity set.
 	 */
-	public Response notFound() {
+	Response notFound() {
 		return Response.status(Status.NOT_FOUND).build();
 	}
 
@@ -68,7 +66,10 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with not found and entity set with message.
 	 */
-	public Response notFound(String message) {
+	Response notFound(String message) {
 		return Response.status(Status.NOT_FOUND).entity(message).build();
 	}
+
+
+	Response internalServerError() { return Response.status(Status.INTERNAL_SERVER_ERROR).build(); }
 }
