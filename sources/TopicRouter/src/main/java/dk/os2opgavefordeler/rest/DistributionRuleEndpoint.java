@@ -251,13 +251,12 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Path("/buildRules")
 	@AdminRequired
 	public Response buildRulesForMunicipality(@QueryParam("municipalityId") long municipalityId) {
-		if (municipalityId < 0) {
-			log.info("buildRules - bad request[{}]", municipalityId);
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve){
+			return badRequest(ve.getMessage());
 		}
-
 		distributionService.buildRulesForMunicipality(municipalityId);
-
 		return ok();
 	}
 
@@ -279,13 +278,12 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@MunicipalityAdminRequired
 	public Response updateTextFilterName(@QueryParam("municipalityId") long municipalityId, FilterNamePO filterNamePO) {
-		if (municipalityId < 0) {
-			log.info("#getFilterNames with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve){
+			return badRequest(ve.getMessage());
 		}
-		else {
-			return ok(distributionService.updateFilterName(municipalityId, filterNamePO));
-		}
+		return ok(distributionService.updateFilterName(municipalityId, filterNamePO));
 	}
 
 	@DELETE
@@ -293,15 +291,13 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@MunicipalityAdminRequired
 	public Response deleteTextFilterName(@PathParam("filterNameId") Long filterNameId, @QueryParam("municipalityId") long municipalityId) {
-		if (municipalityId < 0) {
-			log.info("#deleteFilterName with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve){
+			return badRequest(ve.getMessage());
 		}
-		else {
-			distributionService.deleteFilterName(municipalityId, filterNameId);
-
-			return ok();
-		}
+		distributionService.deleteFilterName(municipalityId, filterNameId);
+		return ok();
 	}
 
 	@DELETE
@@ -309,28 +305,25 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@MunicipalityAdminRequired
 	public Response deleteDateFilterName(@PathParam("filterNameId") Long filterNameId, @QueryParam("municipalityId") long municipalityId) {
-		if (municipalityId < 0) {
-			log.info("#deleteFilterName with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
-		else {
-			distributionService.deleteFilterName(municipalityId, filterNameId);
-
-			return ok();
-		}
+		distributionService.deleteFilterName(municipalityId, filterNameId);
+		return ok();
 	}
 
 	@GET
 	@Path("/text/names/default")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	public Response getDefaultFilterNameText(@QueryParam("municipalityId") long municipalityId) {
-		if (municipalityId < 0) {
-			log.info("#getFilterNames with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
-		else {
-			return ok(distributionService.getDefaultTextFilterName(municipalityId));
-		}
+		return ok(distributionService.getDefaultTextFilterName(municipalityId));
 	}
 
 	@POST
@@ -338,15 +331,13 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@MunicipalityAdminRequired
 	public Response setDefaultFilterNameText(@PathParam("filterNameId") Long filterNameId, @QueryParam("municipalityId") long municipalityId) {
-		if (municipalityId < 0) {
-			log.info("#setDefaultFilterNameText with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
-		else {
-			distributionService.setDefaultTextFilterName(municipalityId, filterNameId);
-
-			return ok();
-		}
+		distributionService.setDefaultTextFilterName(municipalityId, filterNameId);
+		return ok();
 	}
 
 	@GET
@@ -367,13 +358,12 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@MunicipalityAdminRequired
 	public Response updateDateFilterName(@QueryParam("municipalityId") long municipalityId, FilterNamePO filterNamePO) {
-		if (municipalityId < 0) {
-			log.info("#getFilterNames with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
-		else {
-			return ok(distributionService.updateFilterName(municipalityId, filterNamePO));
-		}
+		return ok(distributionService.updateFilterName(municipalityId, filterNamePO));
 	}
 
 	@GET
@@ -394,15 +384,13 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@MunicipalityAdminRequired
 	public Response setDefaultFilterNameDate(@PathParam("filterNameId") Long filterNameId, @QueryParam("municipalityId") long municipalityId) {
-		if (municipalityId < 0) {
-			log.info("#setDefaultFilterNameText with no municipalityId");
-			return badRequest(INVALID_MUNICIPALITY_ID);
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
-		else {
-			distributionService.setDefaultDateFilterName(municipalityId, filterNameId);
-
-			return ok();
-		}
+		distributionService.setDefaultDateFilterName(municipalityId, filterNameId);
+		return ok();
 	}
 
 	//TODO: code below this point should probably be refactored to service methods.

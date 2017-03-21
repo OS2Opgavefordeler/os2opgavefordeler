@@ -1,5 +1,12 @@
 package dk.os2opgavefordeler.rest;
 
+import dk.os2opgavefordeler.LoggedInUser;
+import dk.os2opgavefordeler.model.User;
+import dk.os2opgavefordeler.model.ValidationException;
+import dk.os2opgavefordeler.model.presentation.KlePO;
+import org.slf4j.Logger;
+
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -13,6 +20,33 @@ public abstract class Endpoint {
 	static final String TEXT_PLAIN = "text/plain";
 
 	private static final Status BAD_REQUEST = Status.BAD_REQUEST;
+
+	@Inject
+	Logger logger;
+
+	@Inject @LoggedInUser
+	private User currentUser;
+
+	void verifyMunicipalityIdForMunicipalityAdmin(long municipalityId) throws ValidationException {
+		if( municipalityId < 1 ){
+			throw new ValidationException("Municipality id is not set.");
+		} else if( municipalityId != currentUser.getMunicipality().getId() ) {
+			logger.warn("user: {} tried to use municipality id: {}", currentUser, municipalityId);
+			throw new ValidationException("Municipality id does not match current users.");
+		}
+	}
+
+	void verifyKle(KlePO kle) throws ValidationException {
+		if( kle == null) {
+			throw new ValidationException("kle cannot be null.");
+		}
+	}
+
+	void verifyKle(long kleId) throws ValidationException {
+		if( kleId < 1) {
+			throw new ValidationException("kle cannot be null.");
+		}
+	}
 
 	/**
 	 * Creates an error response.
