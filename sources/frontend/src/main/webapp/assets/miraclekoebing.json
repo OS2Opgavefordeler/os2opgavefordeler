@@ -48,7 +48,14 @@
           "phone": null,
           "esdhId": "",
           "esdhLabel": "",
-          "manager": null,
+          "manager": {
+            "businessKey": "hfp",
+            "name": "Helle F. Pedersen",
+            "email": "hfp@miracle.dk",
+            "initials": "hfp",
+            "jobTitle": "QA",
+            "esdhId": "hfp"
+          },
           "employees": [],
           "children": [
             {
