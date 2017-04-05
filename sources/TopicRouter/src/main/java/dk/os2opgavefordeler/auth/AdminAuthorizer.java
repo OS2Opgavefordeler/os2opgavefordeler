@@ -7,16 +7,13 @@ import org.apache.deltaspike.security.api.authorization.Secures;
 import org.slf4j.Logger;
 
 /**
- * Created by rro on 01-02-2017.
+ * @author rro@miracle.dk
  */
 @ApplicationScoped
 public class AdminAuthorizer {
 
 	@Inject
 	private AuthService authService;
-
-	@Inject
-	Logger logger;
 
 	@Secures
 	@AdminRequired
