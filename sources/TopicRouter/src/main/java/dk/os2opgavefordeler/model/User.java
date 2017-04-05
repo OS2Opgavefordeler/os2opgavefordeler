@@ -38,6 +38,26 @@ public class User implements Serializable {
 		this.roles.forEach(role -> role.setOwner(this));
 	}
 
+	public boolean isManager(){
+		for (Role role : roles) {
+			if( role.isManager() ){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean hasEmployment(Long employmentId){
+		if(employmentId == null) {
+			return false;
+		}
+		for (Role role : roles) {
+			if(role.matchesEmployment(employmentId)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	//--------------------------------------------------------------------------
 	// Getter/setters
