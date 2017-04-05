@@ -129,6 +129,6 @@ public class Kle implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Kle<%s,%s>", number, title);
+		return String.format("Kle<kle: %s, title: %s, muni: %s, parent: %s>", number, title, municipality, parent);
 	}
 }
