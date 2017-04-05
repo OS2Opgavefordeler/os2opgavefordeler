@@ -75,8 +75,6 @@ public class OrgUnitEndpoint extends Endpoint {
 			} else {
 				ou = orgUnitService.getToplevelOrgUnitPO(municipalityId);
 			}
-
-
 			if (!ou.isEmpty()) {
 				return ok(ou);
 			} else {
@@ -144,9 +142,7 @@ public class OrgUnitEndpoint extends Endpoint {
 	public Response fileImport(MultipartFormDataInput multipartInput) {
 		Map<String, List<InputPart>> uploadForm = multipartInput.getFormDataMap();
 		List<InputPart> inputParts = uploadForm.get(FILE);
-
 		StringBuilder completeString = new StringBuilder();
-
 		for (InputPart inputPart : inputParts) {
 			try {
 				completeString.append(inputPart.getBodyAsString());
@@ -158,12 +154,8 @@ public class OrgUnitEndpoint extends Endpoint {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			OrgUnitDTO orgUnitDTO = mapper.readValue(completeString.toString(), OrgUnitDTO.class);
-
 			OrgUnit o = importService.importOrganization(user.getMunicipality().getId(), orgUnitDTO);
-
-
 			log.info("Imported the following OrgUnit: {}", o.toString());
-
 			return Response
 					.ok()
 					.entity(o.getId())
