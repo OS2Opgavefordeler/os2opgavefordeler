@@ -22,7 +22,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NonUniqueResultException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequestScoped
 @Transactional
@@ -75,9 +77,9 @@ public class ImportService {
 		}
 		OrgUnit orgUnit = new OrgUnit();
 		try {
-			orgRepo.deactivateForMunicipality(municipalityId); // inactivate all organisation units in preparation of import
-			orgUnit = importOrgUnit(municipality, null, orgUnitDTO); // import root organisation unit
-			cleanup(municipalityId); // delete inactive records
+			Map<Long, OrgUnit> orgsToBeDeleted = allOrgUnits(municipalityId);
+			orgUnit = importOrgUnit(municipality, null, orgUnitDTO, orgsToBeDeleted); // import root organisation unit
+			cleanup(municipalityId, orgsToBeDeleted); // delete inactive records
 		} finally {
 			updateManager.endJob(municipalityId);
 		}
@@ -92,7 +94,7 @@ public class ImportService {
 	 * @param orgUnitDTO   DTO object to get values from
 	 * @return the resulting organisational unit
 	 */
-	private OrgUnit importOrgUnit(Municipality municipality, OrgUnit parent, OrgUnitDTO orgUnitDTO) {
+	private OrgUnit importOrgUnit(Municipality municipality, OrgUnit parent, OrgUnitDTO orgUnitDTO, Map<Long, OrgUnit> orgsToBeDeleted) {
 		logger.info("Importing OrgUnit: {}, Business key: {}", orgUnitDTO.name, orgUnitDTO.businessKey);
 
 		// retrieve an existing organisational unit or create a new one, if needed
@@ -103,12 +105,11 @@ public class ImportService {
 			orgUnit.setBusinessKey(orgUnitDTO.businessKey);
 			orgUnit.setMunicipality(municipality);
 		} else {
-//			logger.info("OrgUnit already exists, updating.");
+			orgsToBeDeleted.remove(orgUnit.getId());
 		}
 		if (parent != null) {
 			orgUnit.setParent(parent);
 		}
-		orgUnit.setIsActive(true);
 		orgUnit.setName(orgUnitDTO.name);
 		orgUnit.setEsdhId(orgUnitDTO.esdhId);
 		orgUnit.setEsdhLabel(orgUnitDTO.esdhLabel);
@@ -132,7 +133,7 @@ public class ImportService {
 		orgRepo.saveAndFlushAndRefresh(orgUnit);
 
 		for (OrgUnitDTO o : orgUnitDTO.children) {
-			importOrgUnit(municipality, orgUnit, o);
+			importOrgUnit(municipality, orgUnit, o, orgsToBeDeleted);
 		}
 		orgRepo.saveAndFlushAndRefresh(orgUnit);
 		logger.info("Imported OrgUnit: {}", orgUnit);
@@ -216,15 +217,23 @@ public class ImportService {
 		return employments;
 	}
 
+	private Map<Long, OrgUnit> allOrgUnits(long municipalityId){
+		Map<Long, OrgUnit> result = new HashMap<>();
+		List<OrgUnit> orgUnits = orgRepo.findByMunicipality(municipalityId);
+		for (OrgUnit orgUnit : orgUnits) {
+			result.put(orgUnit.getId(), orgUnit);
+		}
+		return result;
+	}
+
 	/**
 	 * Deletes inactive records
 	 */
 	@SuppressWarnings("unchecked")
-	private void cleanup(long municipalityId) {
+	private void cleanup(long municipalityId, Map<Long, OrgUnit> orgsToBeDeleted) {
 		// setup
 		List<Employment> empsForDeletion = employmentRepo.findEmploymentsToDelete(municipalityId);
-		List<OrgUnit> orgsForDeletion = orgRepo.findOrgsToDelete(municipalityId);
-//		orgsForDeletion.addAll(findChildren(orgsForDeletion));
+		List<OrgUnit> orgsForDeletion = new ArrayList<>(orgsToBeDeleted.values());
 
 		// find rules for clearance with reason org.
 		List<DistributionRule> rulesForClearing = new ArrayList();
@@ -245,6 +254,7 @@ public class ImportService {
 			}
 			employmentRepo.flush();
 		}
+
 		for (OrgUnit orgUnit : orgsForDeletion) {
 			orgRepo.remove(orgUnit);
 		}
