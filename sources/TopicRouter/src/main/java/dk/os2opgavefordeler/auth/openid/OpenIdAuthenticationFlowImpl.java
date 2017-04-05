@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import java.net.URI;
 
 @ApplicationScoped
@@ -57,14 +58,13 @@ public class OpenIdAuthenticationFlowImpl implements OpenIdAuthenticationFlow {
 
 	@Override
 	public User findOrCreateUserFromEmail(String email) {
-		return userService.findByEmail(email)
-			.map(user -> {
-				log.info("User found by email, returning");
-				return user;
-			})
-			.orElseGet(() -> {
-				log.info("User not found, creating");
-				return openIdUserFactory.createUserFromOpenIdEmail(email);
-			});
+		try {
+			User user = userRepository.findByEmailIgnoreCase(email);
+			log.info("User found by email, returning");
+			return user;
+		} catch (NoResultException nre){
+			log.info("User not found, creating");
+			return openIdUserFactory.createUserFromOpenIdEmail(email);
+		}
 	}
 }
