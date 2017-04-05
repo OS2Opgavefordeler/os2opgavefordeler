@@ -28,7 +28,7 @@ public class OrgUnit implements Serializable, IHasChildren<OrgUnit> {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	private boolean isActive;
+	private boolean isActive = true;
 
 	@NotNull
 	private String businessKey;
@@ -247,7 +247,9 @@ public class OrgUnit implements Serializable, IHasChildren<OrgUnit> {
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
 				.add("id", id)
+				.add("isActive", isActive)
 				.add("name", name)
+				.add("parent", parentName())
 				.add("email", email)
 				.add("phone", phone)
 				.add("pNumber", pNumber)
@@ -255,6 +257,14 @@ public class OrgUnit implements Serializable, IHasChildren<OrgUnit> {
 				.add("municipality", municipality)
 				.add("kles", kles)
 				.toString();
+	}
+
+	private String parentName(){
+		if(parent != null){
+			return parent.getName();
+		} else {
+			return "no parent";
+		}
 	}
 
 	//--------------------------------------------------------------------------
