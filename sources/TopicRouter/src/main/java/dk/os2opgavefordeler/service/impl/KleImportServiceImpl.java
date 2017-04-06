@@ -8,8 +8,7 @@ import dk.os2opgavefordeler.service.KleImportService;
 import org.slf4j.Logger;
 import org.xml.sax.SAXException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -22,7 +21,7 @@ import javax.xml.validation.SchemaFactory;
 import java.io.InputStream;
 import java.util.List;
 
-@ApplicationScoped
+@RequestScoped
 public class KleImportServiceImpl implements KleImportService {
     @Inject
     Logger log;

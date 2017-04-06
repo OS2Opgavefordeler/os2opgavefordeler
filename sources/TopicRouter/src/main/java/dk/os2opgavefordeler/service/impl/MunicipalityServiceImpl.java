@@ -14,7 +14,7 @@ import dk.os2opgavefordeler.service.MunicipalityService;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * @author hlo@miracle.dk
  */
-@ApplicationScoped
+@RequestScoped
 @Transactional
 public class MunicipalityServiceImpl implements MunicipalityService {
 
@@ -47,7 +47,7 @@ public class MunicipalityServiceImpl implements MunicipalityService {
 	private MunicipalityRepository municipalityRepository;
 
 	@Inject @LoggedInUser
-	private User currentUser;
+	User currentUser;
 
 	@Override
 	public Municipality createMunicipality(Municipality municipality) {

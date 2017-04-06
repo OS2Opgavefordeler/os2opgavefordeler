@@ -7,13 +7,13 @@ import dk.os2opgavefordeler.service.PersistenceService;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 
-@ApplicationScoped
+@RequestScoped
 @Transactional
 public class KleServiceImpl implements KleService {
 	@Inject

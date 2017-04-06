@@ -6,8 +6,7 @@ import java.util.Optional;
 
 import com.google.common.collect.Iterables;
 
-import javax.enterprise.context.ApplicationScoped;
-
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ import dk.os2opgavefordeler.model.*;
 
 import dk.os2opgavefordeler.service.EmploymentService;
 
-@ApplicationScoped
+@RequestScoped
 public class FindAssignedForKleService {
 
     @Inject

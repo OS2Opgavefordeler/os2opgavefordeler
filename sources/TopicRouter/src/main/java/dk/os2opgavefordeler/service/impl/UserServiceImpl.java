@@ -21,8 +21,7 @@ import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import javax.persistence.EntityManager;
@@ -32,7 +31,7 @@ import javax.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+@RequestScoped
 @Transactional
 public class UserServiceImpl implements UserService {
 	private final Logger log = LoggerFactory.getLogger(getClass());
