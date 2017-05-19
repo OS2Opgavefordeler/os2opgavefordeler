@@ -20,6 +20,7 @@ public abstract class Endpoint {
 	static final String TEXT_PLAIN = "text/plain";
 
 	private static final Status BAD_REQUEST = Status.BAD_REQUEST;
+	public static final String NOT_AUTHORIZED = "Not authorized";
 
 	@Inject
 	Logger logger;
@@ -75,6 +76,13 @@ public abstract class Endpoint {
 	 */
   protected Response ok(Object result) {
 		return Response.ok().entity(result).build();
+	}
+
+	/**
+	 *
+	 */
+	protected Response notAuthorized() {
+		return Response.status(Response.Status.UNAUTHORIZED).entity(NOT_AUTHORIZED).build();
 	}
 
 	/**
