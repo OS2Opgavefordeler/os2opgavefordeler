@@ -42,18 +42,17 @@ public class EmploymentEndpoint extends Endpoint {
 			Validate.nonZero(municipalityId, "Invalid municipalityId");
 			Validate.nonZero(employmentId, "Invalid employmentId");
 			List<EmploymentPO> employees;
-			if(managedOnly){
+			if (managedOnly) {
 				employees = employmentService.getManagedAsPO(municipalityId, employmentId);
 			} else {
 				employees = employmentService.getAllPO(municipalityId, employmentId);
 			}
-			if(!employees.isEmpty()) {
+			if (!employees.isEmpty()) {
 				return ok(employees);
 			} else {
 				return notFound();
 			}
-		}
-		catch(BadRequestArgumentException e) {
+		} catch (BadRequestArgumentException e) {
 			return badRequest(e.getMessage());
 		}
 	}
@@ -67,9 +66,9 @@ public class EmploymentEndpoint extends Endpoint {
 			final Optional<EmploymentPO> result = employmentService.getEmploymentPO(empId);
 
 			return result.map(
-				epo -> Response.ok().entity(epo)
+					epo -> Response.ok().entity(epo)
 			).orElseGet(
-				() -> Response.status(404)
+					() -> Response.status(404)
 			).build();
 		} catch (BadRequestArgumentException e) {
 			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
@@ -79,13 +78,13 @@ public class EmploymentEndpoint extends Endpoint {
 	@GET
 	@Path("/{empId}/subordinates")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSubordinates(@PathParam("empId") Long employmentId){
-		if(authService.hasEmployment(employmentId))
-		try {
-			Validate.nonZero(employmentId, "Invalid employmentId");
-		} catch (BadRequestArgumentException e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
-		}
+	public Response getSubordinates(@PathParam("empId") Long employmentId) {
+		if (authService.hasEmployment(employmentId))
+			try {
+				Validate.nonZero(employmentId, "Invalid employmentId");
+			} catch (BadRequestArgumentException e) {
+				return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			}
 		final List<EmploymentPO> result = employmentService.getSubordinates(employmentId);
 		return ok(result);
 	}
