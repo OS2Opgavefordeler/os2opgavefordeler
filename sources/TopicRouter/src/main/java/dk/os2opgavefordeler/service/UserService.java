@@ -1,5 +1,6 @@
 package dk.os2opgavefordeler.service;
 
+import dk.os2opgavefordeler.model.Employment;
 import dk.os2opgavefordeler.model.Role;
 import dk.os2opgavefordeler.model.User;
 import dk.os2opgavefordeler.model.UserSettings;
@@ -40,11 +41,13 @@ public interface UserService {
 
 	void updateSettings(UserSettingsPO settings);
 
-	Role createSubstituteRole(long targetEmploymentId, long roleId) throws ResourceNotFoundException, AuthorizationException;
+	Role createSubstituteRole(long targetEmploymentId, long roleId) throws ResourceNotFoundException, AuthorizationException, BadRequestArgumentException;
 	List<SubstitutePO> findSubstitutesFor(long roleId) throws ResourceNotFoundException, AuthorizationException;
 	boolean isAdmin(String email);
 	boolean isAdmin(long userId);
 	boolean isManager(long userId);
 	boolean isMunicipalityAdmin(long userId);
 	boolean isKleAssigner(long id);
+
+	void verifyCurrentUserOwnsEmployment(Employment targetEmployment) throws BadRequestArgumentException;
 }
