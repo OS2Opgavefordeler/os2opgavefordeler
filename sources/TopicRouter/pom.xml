@@ -445,7 +445,7 @@
                 </property>
             </activation>
             <properties>
-                <hibernate.connection.url>jdbc:h2:mem:test;MVCC=TRUE</hibernate.connection.url>
+                <hibernate.connection.url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MVCC=TRUE</hibernate.connection.url>
                 <hibernate.datasource />
                 <hibernate.dialect>org.hibernate.dialect.H2Dialect</hibernate.dialect>
                 <hibernate.hbm2ddl.auto>create-drop</hibernate.hbm2ddl.auto>
