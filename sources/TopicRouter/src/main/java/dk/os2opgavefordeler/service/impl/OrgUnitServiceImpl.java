@@ -309,6 +309,7 @@ public class OrgUnitServiceImpl implements OrgUnitService {
 	}
 
 	@Override
+	@Deprecated
 	public void importOrganization(OrgUnit orgUnit) {
 		// TODO MUY IMPORTANTE! The given orgUnit must be top level orgUnit.
 		if(!orgUnit.getMunicipality().isPresent()){
