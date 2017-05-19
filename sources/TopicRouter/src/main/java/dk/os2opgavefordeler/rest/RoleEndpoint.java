@@ -3,7 +3,6 @@ package dk.os2opgavefordeler.rest;
 import dk.os2opgavefordeler.auth.AdminRequired;
 import dk.os2opgavefordeler.auth.AuthService;
 import dk.os2opgavefordeler.auth.UserLoggedIn;
-import dk.os2opgavefordeler.auth.openid.OpenIdAuthenticationFlow;
 import dk.os2opgavefordeler.logging.AuditLogged;
 import dk.os2opgavefordeler.model.Role;
 import dk.os2opgavefordeler.model.presentation.SimpleMessage;
@@ -26,7 +25,7 @@ import java.util.Optional;
 @UserLoggedIn
 @AuditLogged
 @Path("/roles")
-public class RoleEndpoint {
+public class RoleEndpoint extends Endpoint {
 
 	@Inject
 	private Logger log;
@@ -38,14 +37,10 @@ public class RoleEndpoint {
 	private UserRepository userRepo;
 
 	@Inject
-//	private EmploymentService employmentService;
-  private EmploymentRepository employmentRepo;
+	private EmploymentRepository employmentRepo;
 
 	@Inject
 	private AuthService authService;
-
-	@Inject
-	private OpenIdAuthenticationFlow openIdAuthenticationFlow;
 
 	private static final String INVALID_ROLE_ID = "Invalid roleId";
 	private static final String INVALID_EMPLOYMENT_ID = "Invalid employmentId";
@@ -56,10 +51,9 @@ public class RoleEndpoint {
 	@NoCache
 	public Response getRoles() {
 		if (userService.isAdmin(authService.getAuthentication().getEmail())) {
-			return Response.ok().entity(userService.getAllRoles()).build();
-		}
-		else {
-			return Response.status(Response.Status.UNAUTHORIZED).entity("Not authorized").build();
+			return ok(userService.getAllRoles());
+		} else {
+			return notAuthorized();
 		}
 
 	}
@@ -77,16 +71,13 @@ public class RoleEndpoint {
 			userService.removeRole(roleId);
 
 			return Response.noContent().build();
-		}
-		catch(ResourceNotFoundException e) {
-			return Response.status(Response.Status.NOT_FOUND).entity(new SimpleMessage(e.getMessage())).build();
-		}
-		catch (AuthorizationException e) {
+		} catch (ResourceNotFoundException e) {
+			return notFound(e.getMessage());
+		} catch (AuthorizationException e) {
 			log.error("current user not authorized to act as role#{}", roleId);
-			return Response.status(Response.Status.UNAUTHORIZED).entity(new SimpleMessage("Unauthorized")).build();
-		}
-		catch(BadRequestArgumentException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			return notAuthorized();
+		} catch (BadRequestArgumentException e) {
+			return badRequest(e.getMessage());
 		}
 	}
 
@@ -101,24 +92,22 @@ public class RoleEndpoint {
 			Validate.nonZero(roleId, INVALID_ROLE_ID);
 
 			final List<SubstitutePO> substitutes = userService.findSubstitutesFor(roleId);
-			return Response.status(Response.Status.OK).entity(substitutes).build();
-		}
-		catch (ResourceNotFoundException ex) {
+			return ok(substitutes);
+		} catch (ResourceNotFoundException ex) {
 			log.warn("role#{} not found", roleId);
-			return Response.status(Response.Status.NOT_FOUND).entity(new SimpleMessage("Role not found")).build();
-		}
-		catch (AuthorizationException e) {
+			return notFound("Role not found");
+		} catch (AuthorizationException e) {
 			log.error("current user not authorized to act as role#{}", roleId);
-			return Response.status(Response.Status.UNAUTHORIZED).entity(new SimpleMessage("Unauthorized")).build();
-		}
-		catch(BadRequestArgumentException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			return notAuthorized();
+		} catch (BadRequestArgumentException e) {
+			return badRequest(e.getMessage());
 		}
 	}
 
 	/**
 	 * Creates a substitute role for the given role.
-	 * @param roleId This is the role that is to be substituted.
+	 *
+	 * @param roleId       This is the role that is to be substituted.
 	 * @param employmentId This employmentId specifies the substitute.
 	 * @return A role that now substitutes given role, assigned to the user matching the given employmentId.
 	 */
@@ -133,16 +122,13 @@ public class RoleEndpoint {
 			Validate.nonZero(employmentId, INVALID_EMPLOYMENT_ID);
 
 			final Role role = userService.createSubstituteRole(employmentId, roleId);
-			return Response.status(Response.Status.OK).entity(new SubstitutePO(role.getOwner().getName(), role.getId())).build();
-		}
-		catch(ResourceNotFoundException e) {
-			return Response.status(Response.Status.NOT_FOUND).entity(new SimpleMessage(e.getMessage())).build();
-		}
-		catch(AuthorizationException e) {
-			return Response.status(Response.Status.UNAUTHORIZED).entity(new SimpleMessage(e.getMessage())).build();
-		}
-		catch(BadRequestArgumentException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
+			return ok(new SubstitutePO(role.getOwner().getName(), role.getId()));
+		} catch (ResourceNotFoundException e) {
+			return notFound(e.getMessage());
+		} catch (AuthorizationException e) {
+			return notAuthorized();
+		} catch (BadRequestArgumentException e) {
+			return badRequest(e.getMessage());
 		}
 	}
 
@@ -151,30 +137,23 @@ public class RoleEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	@AdminRequired
 	public Response setMunicipalityAdmin(@PathParam("roleId") Long roleId, @PathParam("valueId") Long valueId) {
-		if (userService.isAdmin(authService.getAuthentication().getEmail())) {
-			try {
-				Validate.nonZero(roleId, INVALID_ROLE_ID);
+		try {
+			Validate.nonZero(roleId, INVALID_ROLE_ID);
 
-				Optional<Role> role = userService.findRoleById(roleId);
+			Optional<Role> role = userService.findRoleById(roleId);
 
-				if (role.isPresent()) {
-					Role updatedRole = role.get();
-					updatedRole.setMunicipalityAdmin(valueId == 1);
-					userService.updateRole(updatedRole);
+			if (role.isPresent()) {
+				Role updatedRole = role.get();
+				updatedRole.setMunicipalityAdmin(valueId == 1);
+				userService.updateRole(updatedRole);
 
-					return Response.status(Response.Status.OK).entity(new SimpleMessage("OK")).build();
-				}
-				else {
-					log.warn("Role #{} not found", roleId);
-					return Response.status(Response.Status.NOT_FOUND).entity(new SimpleMessage("Role not found")).build();
-				}
+				return Response.status(Response.Status.OK).entity(new SimpleMessage("OK")).build();
+			} else {
+				log.warn("Role #{} not found", roleId);
+				return notFound("Role not found");
 			}
-			catch(BadRequestArgumentException e) {
-				return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
-			}
-		}
-		else {
-			return Response.status(Response.Status.UNAUTHORIZED).entity(new SimpleMessage("Unauthorized")).build();
+		} catch (BadRequestArgumentException e) {
+			return badRequest(e.getMessage());
 		}
 	}
 
@@ -194,19 +173,16 @@ public class RoleEndpoint {
 					updatedRole.setAdmin(valueId == 1);
 					userService.updateRole(updatedRole);
 
-					return Response.status(Response.Status.OK).entity(new SimpleMessage("OK")).build();
-				}
-				else {
+					return ok("OK");
+				} else {
 					log.warn("Role #{} not found", roleId);
-					return Response.status(Response.Status.NOT_FOUND).entity(new SimpleMessage("Role not found")).build();
+					return notFound("Role not found");
 				}
+			} catch (BadRequestArgumentException e) {
+				return badRequest(e.getMessage());
 			}
-			catch(BadRequestArgumentException e) {
-				return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
-			}
-		}
-		else {
-			return Response.status(Response.Status.UNAUTHORIZED).entity(new SimpleMessage("Unauthorized")).build();
+		} else {
+			return notAuthorized();
 		}
 	}
 
@@ -223,21 +199,18 @@ public class RoleEndpoint {
 
 				if (role.isPresent()) {
 					Role updatedRole = role.get();
-					updatedRole.setKleAssigner(valueId==1);
+					updatedRole.setKleAssigner(valueId == 1);
 					userService.updateRole(updatedRole);
 
-					return Response.status(Response.Status.OK).entity(new SimpleMessage("OK")).build();
-				}
-				else {
+					return ok("OK");
+				} else {
 					log.warn("Role #{} not found", roleId);
 					return Response.status(Response.Status.NOT_FOUND).entity(new SimpleMessage("Role not found")).build();
 				}
-			}
-			catch(BadRequestArgumentException e) {
+			} catch (BadRequestArgumentException e) {
 				return Response.status(Response.Status.BAD_REQUEST).entity(new SimpleMessage(e.getMessage())).build();
 			}
-		}
-		else {
+		} else {
 			return Response.status(Response.Status.UNAUTHORIZED).entity(new SimpleMessage("Unauthorized")).build();
 		}
 	}
