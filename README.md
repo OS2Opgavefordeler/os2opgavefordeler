@@ -49,3 +49,12 @@ Produktionsmiljø
 
 Kræver en gyldig brugerkonto.
 
+
+Oversigt
+---
+Applikationen består af:
+
+ - Javascript frontend udviklet i angular.js
+ - Java backend på en JBoss
+ - Postgresql database
+ - Liquibase til database migrationer

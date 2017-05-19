@@ -90,7 +90,7 @@ public class AuthService {
 	 */
 	public void authenticateAs(String email) {
 		authenticationHolder.setEmail(email);
-		User byEmail = userRepository.findByEmail(email);
+		User byEmail = userRepository.findByEmailIgnoreCase(email);
 		authenticationHolder.setToken(byEmail.getMunicipality().getToken());
 	}
 
@@ -108,19 +108,20 @@ public class AuthService {
 	 * @return true if user is logged in and has given employment registered.
 	 */
 	public boolean hasEmployment(Long employmentId){
-		return isAuthenticated() && userRepository.hasEmployment(currentUser().getId(), employmentId);
+		return isAuthenticated() && currentUser().hasEmployment(employmentId);
 
 	}
 
 	@Produces @LoggedInUser
 	public User currentUser(){
 		try	{
-			return userRepository.findByEmail(authenticationHolder.getEmail());
+			User user = userRepository.findByEmailIgnoreCase(authenticationHolder.getEmail());
+			return user;
 		} catch (NoResultException nre){
 			if(emailFound()){
 				logger.warn("No user found for: {}", authenticationHolder.getEmail());
 			}
-			return new User();
+			return null;
 		}
 	}
 	

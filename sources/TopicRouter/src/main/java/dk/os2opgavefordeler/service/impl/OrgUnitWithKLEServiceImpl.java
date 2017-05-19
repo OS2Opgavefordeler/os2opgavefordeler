@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
@@ -25,7 +25,7 @@ import dk.os2opgavefordeler.service.KleService;
 import dk.os2opgavefordeler.service.OrgUnitWithKLEService;
 import dk.os2opgavefordeler.service.PersistenceService;
 
-@ApplicationScoped
+@RequestScoped
 public class OrgUnitWithKLEServiceImpl implements OrgUnitWithKLEService {
 
 	@Inject

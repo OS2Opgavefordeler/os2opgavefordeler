@@ -12,6 +12,7 @@ import dk.os2opgavefordeler.test.UnitTest;
 import org.apache.deltaspike.core.api.projectstage.ProjectStage;
 import org.apache.deltaspike.testcontrol.api.TestControl;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ public class DistributionRuleControllerTest {
     private KleRepository kleRepository;
 
     @Test
+    @Ignore
     public void testCanCreateFilter() throws Exception {
         ConfigService configService = mock(ConfigService.class);
         when(configService.isAuditLogEnabled()).thenReturn(false);
@@ -74,6 +76,7 @@ public class DistributionRuleControllerTest {
     }
 
     @Test
+    @Ignore
     public void testInvalidOrgThrowsException() {
         ConfigService configService = mock(ConfigService.class);
         when(configService.isAuditLogEnabled()).thenReturn(false);
@@ -109,6 +112,7 @@ public class DistributionRuleControllerTest {
     }
 
     @Test
+    @Ignore
     public void testCanDeleteFilter() throws Exception {
         ConfigService configService = mock(ConfigService.class);
         when(configService.isAuditLogEnabled()).thenReturn(false);

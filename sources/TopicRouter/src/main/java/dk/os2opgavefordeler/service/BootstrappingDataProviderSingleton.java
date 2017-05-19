@@ -144,15 +144,15 @@ public class BootstrappingDataProviderSingleton {
 
 
 	private List<Role> buildRoles() {
-		final Employment borge = employmentRepository.findByEmail("borge@kommune.dk");
-		final Employment kodah = employmentRepository.findByEmail("kodah@kommune.dk");
-		final Employment admin = employmentRepository.findByEmail("admin@kommune.dk");
+		final Employment mayor = employmentRepository.findByEmail("jean@kommune.dk");
+		final Employment dev = employmentRepository.findByEmail("erje@kommune.dk");
+		final Employment administration = employmentRepository.findByEmail("hajo@kommune.dk");
 		final Employment jj = employmentRepository.findByEmail("jj@kommune.dk");
 
 		final List<Role> roles = ImmutableList.of(
-				Role.builder().name(borge.getName()).employment(borge).manager(true).build(),
-				Role.builder().name(kodah.getName()).employment(kodah).manager(true).build(),
-				Role.builder().name(admin.getName() + " (Kommuneadmin)").employment(admin).municipalityAdmin(true).build(),
+				Role.builder().name(mayor.getName()).employment(mayor).manager(true).build(),
+				Role.builder().name(dev.getName()).employment(dev).manager(true).build(),
+				Role.builder().name(administration.getName() + " (Kommuneadmin)").employment(administration).municipalityAdmin(true).build(),
 				Role.builder().name(jj.getName() + " (Upriviligeret)").employment(jj).build(),
 				Role.builder().name("Sysadmin").admin(true).build()
 		);

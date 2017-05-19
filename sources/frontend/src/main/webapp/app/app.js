@@ -48,8 +48,7 @@
 					url: "/kleadmin",
 					templateUrl: '/app/kle-admin/kle-admin.html',
 					controller: 'KleAdminCtrl',
-					controllerAs: 'vm',
-					//scope: '{}'
+					controllerAs: 'vm'
 				});
 		$urlRouterProvider.otherwise('/');
 	}

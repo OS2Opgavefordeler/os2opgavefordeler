@@ -1,5 +1,12 @@
 package dk.os2opgavefordeler.rest;
 
+import dk.os2opgavefordeler.LoggedInUser;
+import dk.os2opgavefordeler.model.User;
+import dk.os2opgavefordeler.model.ValidationException;
+import dk.os2opgavefordeler.model.presentation.KlePO;
+import org.slf4j.Logger;
+
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -10,11 +17,37 @@ import javax.ws.rs.core.Response.Status;
  */
 public abstract class Endpoint {
 
-	static final int PAYMENT_REQUIRED = 402;
-
 	static final String TEXT_PLAIN = "text/plain";
 
 	private static final Status BAD_REQUEST = Status.BAD_REQUEST;
+	public static final String NOT_AUTHORIZED = "Not authorized";
+
+	@Inject
+	Logger logger;
+
+	@Inject @LoggedInUser
+	private User currentUser;
+
+	void verifyMunicipalityIdForMunicipalityAdmin(long municipalityId) throws ValidationException {
+		if( municipalityId < 1 ){
+			throw new ValidationException("Municipality id is not set.");
+		} else if( municipalityId != currentUser.getMunicipality().getId() ) {
+			logger.warn("user: {} tried to use municipality id: {}", currentUser, municipalityId);
+			throw new ValidationException("Municipality id does not match current users.");
+		}
+	}
+
+	void verifyKle(KlePO kle) throws ValidationException {
+		if( kle == null) {
+			throw new ValidationException("kle cannot be null.");
+		}
+	}
+
+	void verifyKle(long kleId) throws ValidationException {
+		if( kleId < 1) {
+			throw new ValidationException("kle cannot be null.");
+		}
+	}
 
 	/**
 	 * Creates an error response.
@@ -31,7 +64,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with status ok and no entity set.
 	 */
-	public Response ok() {
+	protected Response ok() {
 		return Response.ok().build();
 	}
 
@@ -41,8 +74,15 @@ public abstract class Endpoint {
 	 * @param result The Object wanted as 'entity'
 	 * @return a built Response with status ok and 'result' as entity.
 	 */
-	public Response ok(Object result) {
+  protected Response ok(Object result) {
 		return Response.ok().entity(result).build();
+	}
+
+	/**
+	 *
+	 */
+	protected Response notAuthorized() {
+		return Response.status(Response.Status.UNAUTHORIZED).entity(NOT_AUTHORIZED).build();
 	}
 
 	/**
@@ -50,7 +90,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with status forbidden and no entity set.
 	 */
-	public Response forbidden() {
+	Response forbidden() {
 		return Response.status(Response.Status.FORBIDDEN).build();
 	}
 
@@ -59,7 +99,7 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with not found and no entity set.
 	 */
-	public Response notFound() {
+	Response notFound() {
 		return Response.status(Status.NOT_FOUND).build();
 	}
 
@@ -68,7 +108,10 @@ public abstract class Endpoint {
 	 *
 	 * @return a built Response with not found and entity set with message.
 	 */
-	public Response notFound(String message) {
+	Response notFound(String message) {
 		return Response.status(Status.NOT_FOUND).entity(message).build();
 	}
+
+
+	Response internalServerError() { return Response.status(Status.INTERNAL_SERVER_ERROR).build(); }
 }

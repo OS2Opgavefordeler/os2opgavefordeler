@@ -1,5 +1,6 @@
 package dk.os2opgavefordeler.service.impl;
 
+import dk.os2opgavefordeler.LoggedInUser;
 import dk.os2opgavefordeler.auth.openid.OpenIdUserFactory;
 
 import dk.os2opgavefordeler.repository.EmploymentRepository;
@@ -21,8 +22,7 @@ import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import javax.persistence.EntityManager;
@@ -32,7 +32,7 @@ import javax.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+@RequestScoped
 @Transactional
 public class UserServiceImpl implements UserService {
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -57,6 +57,9 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private ConfigService configService;
+
+	@Inject @LoggedInUser
+	private User currentUser;
 
 	private static Optional<Role> hasRoleFor(User user, long employmentId) {
 		return user.getRoles().stream()
@@ -267,14 +270,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public Role createSubstituteRole(long targetEmploymentId, long roleId)
-			throws ResourceNotFoundException, AuthorizationException {
-		auth.verifyIsAdmin();
+			throws ResourceNotFoundException, AuthorizationException, BadRequestArgumentException {
 		final Employment targetEmployment = employmentService.getEmployment(targetEmploymentId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employment not found"));
+		verifyCurrentUserOwnsEmployment(targetEmployment);
 		final User targetUser = findByEmail(targetEmployment.getEmail())
 				.orElseGet(() -> openIdUserFactory.createUserFromOpenIdEmail(targetEmployment.getEmail()));
 		final Role sourceRole = findRoleById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-		auth.verifyCanActAs(sourceRole);
 
 		final Employment employment = sourceRole.getEmployment().orElseThrow(() -> new ResourceNotFoundException("Role has no employment"));
 
@@ -368,6 +370,13 @@ public class UserServiceImpl implements UserService {
 		}
 
 		return isMunicipalityAdmin;
+	}
+
+	@Override
+	public void verifyCurrentUserOwnsEmployment(Employment employment) throws BadRequestArgumentException {
+		if( !currentUser.hasEmployment(employment.getId()) ){
+			throw new BadRequestArgumentException("User must own the given employment.");
+		}
 	}
 	
 	@Override

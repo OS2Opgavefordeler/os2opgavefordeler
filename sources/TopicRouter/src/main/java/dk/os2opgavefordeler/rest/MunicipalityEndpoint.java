@@ -144,9 +144,7 @@ public class MunicipalityEndpoint extends Endpoint {
 	@AdminRequired
 	public Response createMunicipality(Municipality municipality) {
 		log.info("Creating municipality: {}", municipality);
-
 		Municipality result = municipalityService.createMunicipality(municipality);
-
 		log.info("Municipality created: {}", municipality);
 		return ok(result);
 	}
@@ -178,10 +176,8 @@ public class MunicipalityEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	@MunicipalityAdminRequired
 	public Response saveMunicipalityKle(KlePO kle) {
-		if (kle == null) {
-			return badRequest("You need to provide a valid KlePO");
-		}
 		try {
+			verifyKle(kle);
 			KlePO result = municipalityService.saveMunicipalityKle(kle);
 			return ok(result);
 		} catch (ValidationException ve) {
@@ -193,11 +189,9 @@ public class MunicipalityEndpoint extends Endpoint {
 	@Path("/{municipalityId}/kle/{id}")
 	@MunicipalityAdminRequired
 	public Response deleteMunicipalityKle(@PathParam("municipalityId") Long municipalityId, @PathParam("id") Long kleId) {
-		if (municipalityId == null || kleId == null) {
-			return badRequest("You need to provide valid municipalityId and kleId");
-		}
-
 		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
+			verifyKle(kleId);
 			municipalityService.deleteMunicipalityKle(municipalityId, kleId);
 			return ok(kleId);
 		} catch (ValidationException e) {
@@ -212,11 +206,12 @@ public class MunicipalityEndpoint extends Endpoint {
 	@MunicipalityAdminRequired
 	@AuditLogged
 	public Response getApiKey(@PathParam("municipalityId") long municipalityId) {
-		if (permissionsOk(municipalityId)) {
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
 			String apiKey = municipalityService.getApiKey(municipalityId);
 			return ok(new ApiKeyPO(apiKey));
-		} else {
-			return badRequest("could not find municipality or validate permissions.");
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
 	}
 
@@ -225,27 +220,12 @@ public class MunicipalityEndpoint extends Endpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	@MunicipalityAdminRequired
 	public Response setApiKey(@PathParam("municipalityId") long municipalityId, @PathParam("apiKey") String apiKey) {
-		if (permissionsOk(municipalityId)) {
+		try {
+			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
 			municipalityService.setApiKey(municipalityId, apiKey);
 			return ok(new ApiKeyPO(apiKey));
-		} else {
-			return badRequest("could not find municipality or validate permissions.");
+		} catch (ValidationException ve) {
+			return badRequest(ve.getMessage());
 		}
-	}
-
-	private boolean permissionsOk(long municipalityId) {
-		// determine municipality from user
-		User user = userRepository.findByEmail(authService.getAuthentication().getEmail());
-
-		// make sure the user is authorized to see/update the API key
-		if (userService.isMunicipalityAdmin(user.getId())) {
-			Municipality currentMunicipality = user.getMunicipality();
-
-			if (currentMunicipality.getId() == municipalityId) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

@@ -17,50 +17,50 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 @Path("/org-unit-import")
+@Deprecated
 public class ImportEndpoint extends Endpoint {
 
-    @Inject
-    private Logger logger;
+	@Inject
+	private Logger logger;
 
-    @Inject
-    private ImportService importService;
+	@Inject
+	private ImportService importService;
 
-    @Inject
-    private UserRepository userRepository;
+	@Inject
+	private UserRepository userRepository;
 
-    @Inject
-    private AuthService authService;
+	@Inject
+	private AuthService authService;
 
-    @Context
-    private HttpServletRequest request;
+	@Context
+	private HttpServletRequest request;
 
-    @POST
-    @Consumes("application/json")
-    @Produces("application/json")
-    @Path("/")
-    public Response import_(OrgUnitDTO orgUnitDTO) {
-        logger.info("Importing organizational unit");
-        logger.info(orgUnitDTO.toString());
+	@POST
+	@Consumes("application/json")
+	@Produces("application/json")
+	@Path("/")
+	public Response import_(OrgUnitDTO orgUnitDTO) {
+		logger.info("Importing organizational unit");
+		logger.info(orgUnitDTO.toString());
 
-        if (!authService.isAuthenticated()) {
-            return badRequest("No user");
-        }
+		if (!authService.isAuthenticated()) {
+			return badRequest("No user");
+		}
 
-        User u = userRepository.findByEmail(authService.getAuthentication().getEmail());
+		User u = userRepository.findByEmail(authService.getAuthentication().getEmail());
 
-        try {
-            OrgUnit o = importService.importOrganization(u.getMunicipality().getId(), orgUnitDTO);
+		try {
+			OrgUnit o = importService.importOrganization(u.getMunicipality().getId(), orgUnitDTO);
 
-            return Response
-                    .ok()
-                    .entity(o.getId())
-                    .build();
-        }
-        catch (ImportService.InvalidMunicipalityException e) {
-            logger.error("Invalid municipality for import: {}", e);
+			return Response
+					.ok()
+					.entity(o.getId())
+					.build();
+		} catch (ImportService.InvalidMunicipalityException e) {
+			logger.error("Invalid municipality for import: {}", e);
 
-	        return badRequest("ERROR");
-        }
-    }
+			return badRequest("ERROR");
+		}
+	}
 
 }

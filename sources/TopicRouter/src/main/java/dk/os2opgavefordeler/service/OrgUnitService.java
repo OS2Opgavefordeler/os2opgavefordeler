@@ -21,6 +21,7 @@ public interface OrgUnitService {
 	 * Imports an organization tree.
 	 * @param orgUnit
 	 */
+	@Deprecated
 	void importOrganization(OrgUnit orgUnit);
 
 	/**

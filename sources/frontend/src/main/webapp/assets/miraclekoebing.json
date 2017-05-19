@@ -1,5 +1,6 @@
 {
   "businessKey": "K1",
+  "pNumber": "P1",
   "name": "Miraclekøbing",
   "email": null,
   "phone": null,
@@ -10,6 +11,7 @@
   "children": [
     {
       "businessKey": "K2",
+      "pNumber": "P2",
       "name": "Direktion",
       "email": null,
       "phone": null,
@@ -24,20 +26,11 @@
         "phone": "53747268",
         "esdhId": "1"
       },
-      "employees": [
-        {
-          "businessKey": "K3",
-          "name": "Simon Møgelvang Bang",
-          "email": "smb@miracle.dk",
-          "initials": "smb",
-          "jobTitle": "Kommunaldirektør",
-          "phone": "53747268",
-          "esdhId": "1"
-        }
-      ],
+      "employees": [],
       "children": [
         {
           "businessKey": "K4",
+          "pNumber": "P4",
           "name": "Forsyning",
           "email": null,
           "phone": null,
@@ -49,16 +42,25 @@
         },
         {
           "businessKey": "K5",
+          "pNumber": "P5",
           "name": "Direktion STAB",
           "email": null,
           "phone": null,
           "esdhId": "",
           "esdhLabel": "",
-          "manager": null,
+          "manager": {
+            "businessKey": "hfp",
+            "name": "Helle F. Pedersen",
+            "email": "hfp@miracle.dk",
+            "initials": "hfp",
+            "jobTitle": "QA",
+            "esdhId": "hfp"
+          },
           "employees": [],
           "children": [
             {
               "businessKey": "K7",
+              "pNumber": "P7",
               "name": "Ledelsessekretariat",
               "email": null,
               "phone": null,
@@ -74,15 +76,6 @@
                 "esdhId": "2"
               },
               "employees": [
-                {
-                  "businessKey": "K8",
-                  "name": "Sune Marcher",
-                  "email": "sum@miracle.dk",
-                  "initials": "sum",
-                  "jobTitle": "Sekretariatschef",
-                  "phone": "53747270",
-                  "esdhId": "2"
-                },
                 {
                   "businessKey": "K9",
                   "name": "Hans Ehlert Thomsen",
@@ -105,6 +98,7 @@
               "children": [
                 {
                   "businessKey": "K11",
+                  "pNumber": "P11",
                   "name": "Borgerservice og Direktionssekretariat",
                   "email": null,
                   "phone": null,
@@ -115,6 +109,7 @@
                   "children": [
                     {
                       "businessKey": "K12",
+                      "pNumber": "P12",
                       "name": "Direktionssekretariatet",
                       "email": null,
                       "phone": null,
@@ -125,6 +120,7 @@
                       "children": [
                         {
                           "businessKey": "K13",
+                          "pNumber": "P13",
                           "name": "Forsikringsafdelingen",
                           "email": null,
                           "phone": null,
@@ -140,6 +136,7 @@
                 },
                 {
                   "businessKey": "K14",
+                  "pNumber": "P14",
                   "name": "Byrådet",
                   "email": null,
                   "phone": null,
@@ -155,15 +152,6 @@
                     "esdhId": "14"
                   },
                   "employees": [
-                    {
-                      "businessKey": "K15",
-                      "name": "Rune Nielsen",
-                      "email": "rni@miracle.dk",
-                      "initials": "rni",
-                      "jobTitle": "Byrådskalif",
-                      "phone": "53747176",
-                      "esdhId": "14"
-                    },
                     {
                       "businessKey": "K16",
                       "name": "Henrik Løvborg",
@@ -205,6 +193,7 @@
                 },
                 {
                   "businessKey": "K20",
+                  "pNumber": "P20",
                   "name": "Råd og nævn",
                   "email": null,
                   "phone": null,
@@ -215,6 +204,7 @@
                   "children": [
                     {
                       "businessKey": "K21",
+                      "pNumber": "P21",
                       "name": "Folkeoplysning",
                       "email": null,
                       "phone": null,
@@ -226,6 +216,7 @@
                     },
                     {
                       "businessKey": "K22",
+                      "pNumber": "P22",
                       "name": "Huslejenævn",
                       "email": null,
                       "phone": null,
@@ -242,15 +233,6 @@
                       },
                       "employees": [
                         {
-                          "businessKey": "K23",
-                          "name": "Brian Bek Jensen",
-                          "email": "bbj@miracle.dk",
-                          "initials": "bbj",
-                          "jobTitle": "Formand",
-                          "phone": "",
-                          "esdhId": "8"
-                        },
-                        {
                           "businessKey": "K24",
                           "name": "Martin Hvidberg Nielsen",
                           "email": "mhn@miracle.dk",
@@ -264,6 +246,7 @@
                     },
                     {
                       "businessKey": "K25",
+                      "pNumber": "P25",
                       "name": "Beboerklagenævn",
                       "email": null,
                       "phone": null,
@@ -285,6 +268,7 @@
                     },
                     {
                       "businessKey": "K27",
+                      "pNumber": "P27",
                       "name": "Ældrerådet",
                       "email": null,
                       "phone": null,
@@ -299,21 +283,12 @@
                         "phone": "42461699",
                         "esdhId": "11"
                       },
-                      "employees": [
-                        {
-                          "businessKey": "K28",
-                          "name": "Kristian V. Sørensen",
-                          "email": "kvs@miracle.dk",
-                          "initials": "kvs",
-                          "jobTitle": "Ældrerådsformand",
-                          "phone": "42461699",
-                          "esdhId": "11"
-                        }
-                      ],
+                      "employees": [],
                       "children": []
                     },
                     {
                       "businessKey": "K29",
+                      "pNumber": "P29",
                       "name": "Hegnsyn",
                       "email": null,
                       "phone": null,
@@ -328,21 +303,12 @@
                         "phone": "53747260",
                         "esdhId": "12"
                       },
-                      "employees": [
-                        {
-                          "businessKey": "K30",
-                          "name": "Kristoffer Bundgaard",
-                          "email": "",
-                          "initials": "kbu",
-                          "jobTitle": "Hegnsynsmand",
-                          "phone": "53747260",
-                          "esdhId": "12"
-                        }
-                      ],
+                      "employees": [],
                       "children": []
                     },
                     {
                       "businessKey": "K31",
+                      "pNumber": "P31",
                       "name": "Beredskabskommission",
                       "email": null,
                       "phone": null,
@@ -354,6 +320,7 @@
                     },
                     {
                       "businessKey": "K32",
+                      "pNumber": "P32",
                       "name": "Fredningsnævn",
                       "email": null,
                       "phone": null,
@@ -368,17 +335,7 @@
                         "phone": "",
                         "esdhId": "13"
                       },
-                      "employees": [
-                        {
-                          "businessKey": "K33",
-                          "name": "Rasmus Rosendal",
-                          "email": "rro@miracle.dk",
-                          "initials": "rro",
-                          "jobTitle": "Medlem af Fredningsnævnet",
-                          "phone": "",
-                          "esdhId": "13"
-                        }
-                      ],
+                      "employees": [],
                       "children": []
                     }
                   ]

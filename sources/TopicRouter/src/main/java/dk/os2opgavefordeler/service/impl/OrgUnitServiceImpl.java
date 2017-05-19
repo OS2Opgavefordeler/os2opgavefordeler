@@ -7,7 +7,7 @@ import dk.os2opgavefordeler.service.PersistenceService;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+@RequestScoped
 @Transactional
 public class OrgUnitServiceImpl implements OrgUnitService {
 
@@ -309,6 +309,7 @@ public class OrgUnitServiceImpl implements OrgUnitService {
 	}
 
 	@Override
+	@Deprecated
 	public void importOrganization(OrgUnit orgUnit) {
 		// TODO MUY IMPORTANTE! The given orgUnit must be top level orgUnit.
 		if(!orgUnit.getMunicipality().isPresent()){

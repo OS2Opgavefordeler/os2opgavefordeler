@@ -10,7 +10,7 @@ import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -35,7 +35,7 @@ import java.util.List;
  * <p>
  * TODO: should we drop entries with a non-empty 'Udgaaet' date, or should we add dateExpired to the model?
  */
-@ApplicationScoped
+@RequestScoped
 @Transactional
 public class KleImportMapperImpl implements KleImportMapper {
     private static final String FAKE_ROOT = "FakeRoot";

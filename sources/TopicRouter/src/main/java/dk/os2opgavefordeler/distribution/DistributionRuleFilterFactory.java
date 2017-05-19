@@ -1,8 +1,7 @@
 package dk.os2opgavefordeler.distribution;
 
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
-
-import javax.enterprise.context.ApplicationScoped;
 
 import javax.inject.Inject;
 
@@ -18,7 +17,7 @@ import dk.os2opgavefordeler.model.DistributionRule;
 import dk.os2opgavefordeler.model.DistributionRuleFilter;
 import dk.os2opgavefordeler.model.TextDistributionRuleFilter;
 
-@ApplicationScoped
+@RequestScoped
 public class DistributionRuleFilterFactory {
 
     @Inject

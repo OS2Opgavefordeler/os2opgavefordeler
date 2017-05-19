@@ -44,6 +44,9 @@ public class Role implements Serializable {
 		this.kleAssigner = builder.kleAssigner;
 	}
 
+	public boolean matchesEmployment(Long employmentId) {
+		return employmentId != null && employment.getId() == employmentId;
+	}
 
 	//--------------------------------------------------------------------------
 	// Builder

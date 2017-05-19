@@ -216,7 +216,7 @@
 								});
 							}
 						}
-						else if ($scope.type == 'text') {
+						else if ($scope.model.type == 'text') {
 							if ($scope.model.text) {
 								setFilterFromModel();
 							}
