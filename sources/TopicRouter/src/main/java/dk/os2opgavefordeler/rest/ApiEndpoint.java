@@ -12,8 +12,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -23,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import dk.os2opgavefordeler.orgunit.ImportService;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
@@ -90,6 +93,9 @@ public class ApiEndpoint extends Endpoint {
 
 	@Inject
 	private AuthService authService;
+
+	@Inject
+	ImportService importService;
 
 	@GET
 	@Path("/")
@@ -193,11 +199,29 @@ public class ApiEndpoint extends Endpoint {
 		}
 	}
 
-	/**
-	 * Authorizes the incoming call to the endpoint
-	 *
-	 * @return AuthorizeResult containing the municipality if success, or HTTP error status and message if not success.
-	 */
+	@POST
+	@Consumes("application/json")
+	@Produces("application/json")
+	@Path("/org-unit-import")
+	public Response import_(OrgUnitDTO orgUnitDTO) {
+		try {
+			Municipality municipality = authorize();
+			OrgUnit o = importService.importOrganization(municipality.getId(), orgUnitDTO);
+			return ok(o);
+		} catch (ApiException e) {
+			log.warn("rejected api call with reason: {}", e.getReason());
+			return e.getResponse();
+		} catch (ImportService.InvalidMunicipalityException e) {
+			log.warn("got InvalidMunicipalityException from ImportService: {}", e);
+			return badRequest("InvalidMunicipalityException raised.");
+		}
+	}
+
+		/**
+		 * Authorizes the incoming call to the endpoint
+		 *
+		 * @return AuthorizeResult containing the municipality if success, or HTTP error status and message if not success.
+		 */
 	private Municipality authorize() throws ApiException {
 		String token = authService.getAuthentication().getToken();
 		if (token == null || token.isEmpty()) {
