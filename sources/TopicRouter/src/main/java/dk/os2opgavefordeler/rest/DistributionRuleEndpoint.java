@@ -1,5 +1,6 @@
 package dk.os2opgavefordeler.rest;
 
+import dk.os2opgavefordeler.LoggedInUser;
 import dk.os2opgavefordeler.auth.AdminRequired;
 import dk.os2opgavefordeler.auth.AuthService;
 import dk.os2opgavefordeler.auth.MunicipalityAdminRequired;
@@ -55,6 +56,10 @@ public class DistributionRuleEndpoint extends Endpoint {
 	private AuthService authService;
 
 	@Inject
+	@LoggedInUser
+	private User currentUser;
+
+	@Inject
 	private AuditLogger auditLogger;
 
 	private static final String USER_NOT_FOUND = "Bruger ikke fundet.";
@@ -72,7 +77,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 	 * Returns a list of distribution rules for the specified role and scope.
 	 *
 	 * @param roleId The role for which to get the distribution rules
-	 * @param scope The scope for looking up distribution rules
+	 * @param scope  The scope for looking up distribution rules
 	 * @return list of DistributionRulePO's matching the role and scope
 	 */
 	@GET
@@ -97,20 +102,16 @@ public class DistributionRuleEndpoint extends Endpoint {
 					// only display results if the user is the manager of the given organisation unit or the scope is ALL
 					if (role.get().isManager() || scope == DistributionRuleScope.ALL) {
 						return ok(distributionService.getPoDistributions(orgUnit.get(), scope));
-					}
-					else {
+					} else {
 						return ok(new ArrayList<DistributionRulePO>());
 					}
-				}
-				else {
+				} else {
 					return badRequest(NO_ORGUNIT_FOUND_FOR_USER);
 				}
-			}
-			else {
+			} else {
 				return badRequest(NO_EMPLOYMENT_FOUND_FOR_USER);
 			}
-		}
-		else {
+		} else {
 			return badRequest(NO_ROLE_FOUND_FOR_USER);
 		}
 	}
@@ -125,22 +126,25 @@ public class DistributionRuleEndpoint extends Endpoint {
 			log.warn("updateResponsibleOrganization - bad request[{},{}]", distId, distribution);
 			return badRequest("need distId and distribution object");
 		}
-		if(!validUpdateTypes.contains(type)){
-			log.warn("invalid update type given. Type: "+type);
+		if (!validUpdateTypes.contains(type)) {
+			log.warn("invalid update type given. Type: " + type);
 			return badRequest("Invalid type given as parameter.");
 		}
-		Optional<User> user = userService.findByEmail(authService.getAuthentication().getEmail());
-		if(!user.isPresent()){
-			log.warn("returning from user not found.");
-			return Response.status(Response.Status.NOT_FOUND).entity(USER_NOT_FOUND).build();
-		}
-		long userId = user.get().getId();
-		if (hasUpdatePermission(userId)) { // only managers and admins can update responsibility
-			final String userStr = user.get().getEmail();
+
+		if (hasUpdatePermission()) { // only managers and admins can update responsibility
+			final String userStr = currentUser.getEmail();
 			final Kle kle = kleService.getKle(distribution.getKle().getId());
 			final String kleStr = kle != null && !kle.getNumber().isEmpty() ? kle.getNumber() : "";
-			final Municipality municipality = user.get().getMunicipality();
+			final Municipality municipality = currentUser.getMunicipality();
 			final Optional<DistributionRule> existingDistributionRule = distributionService.getDistribution(distId);
+
+			if( existingDistributionRule.isPresent() ){
+				try {
+					verifyMunicipality(existingDistributionRule.get());
+				} catch (ValidationException e) {
+					return badRequest(e.getMessage());
+				}
+			};
 
 			String operationType = "";
 			String eventType = "";
@@ -153,39 +157,33 @@ public class DistributionRuleEndpoint extends Endpoint {
 
 				if (distribution.getResponsible() == 0) { // deleting responsible org unit
 					operationType = LogEntry.DELETE_TYPE;
-				}
-				else {
+				} else {
 					if (!existingDistributionRule.isPresent()) { // distribution rule didn't already exist
 						operationType = LogEntry.CREATE_TYPE;
-					}
-					else { // distribution rule exists
+					} else { // distribution rule exists
 						if (existingDistributionRule.get().getResponsibleOrg().isPresent()) { // responsible org is set
 							operationType = LogEntry.UPDATE_TYPE;
-						}
-						else {
+						} else {
 							operationType = LogEntry.CREATE_TYPE;
 						}
 					}
 
 					// fetch organisational unit
 					Optional<OrgUnit> orgUnit = orgUnitService.getOrgUnit(distribution.getResponsible());
-					orgUnitStr = orgUnit.isPresent() ? orgUnit.get().getName() + " (" + orgUnit.get().getBusinessKey() + ")"  : "";
+					orgUnitStr = orgUnit.isPresent() ? orgUnit.get().getName() + " (" + orgUnit.get().getBusinessKey() + ")" : "";
 				}
-			}	else if (DISTRIBUTION_UPDATE_TYPE.equals(type)) {
+			} else if (DISTRIBUTION_UPDATE_TYPE.equals(type)) {
 				eventType = LogEntry.DISTRIBUTION_TYPE;
 
 				if (distribution.getOrg() == 0 && distribution.getEmployee() == 0) { // deleting distribution rule
 					operationType = LogEntry.DELETE_TYPE;
-				}
-				else {
+				} else {
 					if (!existingDistributionRule.isPresent()) { // distribution rule didn't already exist
 						operationType = LogEntry.CREATE_TYPE;
-					}
-					else { // distribution rule exists
+					} else { // distribution rule exists
 						if (existingDistributionRule.get().getAssignedOrg().isPresent()) { // assigned org is set
 							operationType = LogEntry.UPDATE_TYPE;
-						}
-						else {
+						} else {
 							operationType = LogEntry.CREATE_TYPE;
 						}
 					}
@@ -193,13 +191,13 @@ public class DistributionRuleEndpoint extends Endpoint {
 
 				// fetch organisational unit
 				Optional<OrgUnit> orgUnit = orgUnitService.getOrgUnit(distribution.getOrg());
-				orgUnitStr = orgUnit.isPresent() ? orgUnit.get().getName() + " (" + orgUnit.get().getBusinessKey() + ")"  : "";
+				orgUnitStr = orgUnit.isPresent() ? orgUnit.get().getName() + " (" + orgUnit.get().getBusinessKey() + ")" : "";
 
 				// fetch employment
 				Optional<Employment> employment = employmentService.getEmployment(distribution.getEmployee());
-				employmentStr = employment.isPresent() ? employment.get().getName() + " (" + employment.get().getInitials() + ")": "";
+				employmentStr = employment.isPresent() ? employment.get().getName() + " (" + employment.get().getInitials() + ")" : "";
 			} else {
-				log.warn("why do we end up here? type: "+type);
+				log.warn("why do we end up here? type: " + type);
 			}
 
 			// log event
@@ -218,7 +216,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 							}
 					);
 		} else {
-			log.warn("returned since user does not have permission to update. User: "+user);
+			log.warn("returned since user does not have permission to update. User: {}", currentUser);
 			return badRequest("Does not have permission to update");
 		}
 
@@ -227,12 +225,11 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@GET
 	@Path("/{distId}/children")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getChildren(@PathParam("distId") Long distId, @QueryParam("employment") Long employmentId, @QueryParam("scope") DistributionRuleScope scope){
+	public Response getChildren(@PathParam("distId") Long distId, @QueryParam("employment") Long employmentId, @QueryParam("scope") DistributionRuleScope scope) {
 		if (distId == null || employmentId == null || scope == null) {
 			log.info("#getChildren with no distId, employmentId and scope");
 			return badRequest("You need to specify valid distributionId, employmentId and scope as part of the url.");
-		}
-		else {
+		} else {
 			final Optional<Employment> employment = orgUnitService.getEmployment(employmentId);
 			final Optional<OrgUnit> orgUnit = employment.map(Employment::getEmployedIn);
 
@@ -240,8 +237,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 				List<DistributionRulePO> result = distributionService.getChildren(distId, orgUnit.get(), scope)
 						.stream().map(DistributionRulePO::new).collect(Collectors.toList());
 				return ok(result);
-			}
-			else {
+			} else {
 				return badRequest(NO_ORGUNIT_FOUND_FOR_USER);
 			}
 		}
@@ -253,7 +249,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 	public Response buildRulesForMunicipality(@QueryParam("municipalityId") long municipalityId) {
 		try {
 			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
-		} catch (ValidationException ve){
+		} catch (ValidationException ve) {
 			return badRequest(ve.getMessage());
 		}
 		distributionService.buildRulesForMunicipality(municipalityId);
@@ -267,8 +263,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 		if (municipalityId < 0) {
 			log.info("#getFilterNames with no municipalityId");
 			return badRequest(INVALID_MUNICIPALITY_ID);
-		}
-		else {
+		} else {
 			return ok(distributionService.getFilterNamesText(municipalityId));
 		}
 	}
@@ -280,7 +275,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 	public Response updateTextFilterName(@QueryParam("municipalityId") long municipalityId, FilterNamePO filterNamePO) {
 		try {
 			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
-		} catch (ValidationException ve){
+		} catch (ValidationException ve) {
 			return badRequest(ve.getMessage());
 		}
 		return ok(distributionService.updateFilterName(municipalityId, filterNamePO));
@@ -293,7 +288,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 	public Response deleteTextFilterName(@PathParam("filterNameId") Long filterNameId, @QueryParam("municipalityId") long municipalityId) {
 		try {
 			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
-		} catch (ValidationException ve){
+		} catch (ValidationException ve) {
 			return badRequest(ve.getMessage());
 		}
 		distributionService.deleteFilterName(municipalityId, filterNameId);
@@ -347,8 +342,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 		if (municipalityId < 0) {
 			log.info("#getFilterNames with no municipalityId");
 			return badRequest(INVALID_MUNICIPALITY_ID);
-		}
-		else {
+		} else {
 			return ok(distributionService.getFilterNamesDate(municipalityId));
 		}
 	}
@@ -373,8 +367,7 @@ public class DistributionRuleEndpoint extends Endpoint {
 		if (municipalityId < 0) {
 			log.info("#getFilterNames with no municipalityId");
 			return badRequest(INVALID_MUNICIPALITY_ID);
-		}
-		else {
+		} else {
 			return ok(distributionService.getDefaultDateFilterName(municipalityId));
 		}
 	}
@@ -395,15 +388,14 @@ public class DistributionRuleEndpoint extends Endpoint {
 
 	//TODO: code below this point should probably be refactored to service methods.
 	private Response doUpdateResponsibleOrganization(DistributionRule existing, DistributionRulePO updated) {
-		if(!allowedToUpdate(existing)) {
+		if (!allowedToUpdate(existing)) {
 			log.warn("User {} doesn't have permissions to update {}", "<WeDontHaveUsersYet>", existing);
 
 			return forbidden();
 		}
 		try {
 			updateDistributionRule(existing, updated);
-		}
-		catch(IllegalArgumentException ex) {
+		} catch (IllegalArgumentException ex) {
 			log.warn("doUpdateResponsibleOrganization - invalid arguments in [{}]", updated);
 			// persistenceService.rollbackTransaction();	// if we move logic to DistributionService, perform rollback.
 			return Response.serverError().build();
@@ -436,13 +428,13 @@ public class DistributionRuleEndpoint extends Endpoint {
 		//calculate stuff and stuff with stuff on.
 		updateIfChanged(existing.getResponsibleOrg().map(OrgUnit::getId).orElse(0L), updated.getResponsible(), newOwnerId -> {
 			OrgUnit newOwner = (newOwnerId == 0) ? null :
-				orgUnitService.getOrgUnit(newOwnerId).orElseThrow(IllegalArgumentException::new);
+					orgUnitService.getOrgUnit(newOwnerId).orElseThrow(IllegalArgumentException::new);
 			existing.setResponsibleOrg(newOwner);
 		});
 
 		updateIfChanged(existing.getAssignedOrg().map(OrgUnit::getId).orElse(0L), updated.getOrg(), newOrgId -> {
 			OrgUnit newOrg = (newOrgId == 0) ? null :
-				orgUnitService.getOrgUnit(newOrgId).orElseThrow(IllegalArgumentException::new);
+					orgUnitService.getOrgUnit(newOrgId).orElseThrow(IllegalArgumentException::new);
 			existing.setAssignedOrg(newOrg);
 		});
 
@@ -451,17 +443,23 @@ public class DistributionRuleEndpoint extends Endpoint {
 		distributionService.createDistributionRule(existing); // if we move logic to DistributionService, 'existing' is managed and this shouldn't be necessary.
 	}
 
-	private<T extends Comparable<T>> void updateIfChanged(T oldVal, T newVal, Consumer<T> updater) {
-		if(!newVal.equals(oldVal)) {
+	private <T extends Comparable<T>> void updateIfChanged(T oldVal, T newVal, Consumer<T> updater) {
+		if (!newVal.equals(oldVal)) {
 			updater.accept(newVal);
 		}
 	}
 
-	private boolean updatingResponsible(String type){
+	private boolean updatingResponsible(String type) {
 		return RESPONSIBILITY_UPDATE_TYPE.equals(type);
 	}
 
-	private boolean hasUpdatePermission(long userId){
-		return userService.isAdmin(userId) || userService.isMunicipalityAdmin(userId) || userService.isManager(userId);
+	private boolean hasUpdatePermission() {
+		return userService.isAdmin(currentUser.getId()) || userService.isMunicipalityAdmin(currentUser.getId()) || userService.isManager(currentUser.getId());
+	}
+
+	private void verifyMunicipality(DistributionRule rule) throws ValidationException {
+		if (!rule.getMunicipality().equals(currentUser.getMunicipality())) {
+			throw new ValidationException("rule does not belong to logged in user.");
+		}
 	}
 }
