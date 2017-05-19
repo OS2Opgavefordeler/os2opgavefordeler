@@ -54,6 +54,7 @@ public class DistributionRuleFilterTest {
 	private DistributionRuleRepository repository;
 
 	@Test
+	@Ignore
 	public void testIfNoRulesUseDefault() throws Exception {
 
 		Municipality municipality = new Municipality("test");
@@ -95,6 +96,7 @@ public class DistributionRuleFilterTest {
 	}
 
 	@Test
+	@Ignore
 	public void testIfThereIsAFilterAndItMatchesReturnThat() throws Exception {
 		Kle kle = new Kle("1.1.1", "test kle", "blank", DateTime.now().toDate());
 		kleRepository.save(kle);
