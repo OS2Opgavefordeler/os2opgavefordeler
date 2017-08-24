@@ -10,6 +10,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 
 import dk.os2opgavefordeler.auth.AuthService;
@@ -26,6 +27,7 @@ import dk.os2opgavefordeler.service.OrgUnitWithKLEService;
 import dk.os2opgavefordeler.service.PersistenceService;
 
 @RequestScoped
+@Transactional
 public class OrgUnitWithKLEServiceImpl implements OrgUnitWithKLEService {
 
 	@Inject
