@@ -375,6 +375,7 @@ public class OrgUnitServiceImpl implements OrgUnitService {
 		try {
 			final OrgUnit orgUnit = query.getSingleResult();
 			orgUnit.getEmployees();
+			orgUnit.hasKles();
 			touchChildren(orgUnit.getChildren());
 			result = Optional.of(orgUnit);
 		} catch (NoResultException nre){
@@ -466,6 +467,7 @@ public class OrgUnitServiceImpl implements OrgUnitService {
 	private List<OrgUnit> touchChildren(List<OrgUnit> ou) {
 		ou.forEach(child -> {
 			child.getEmployees().size();
+			child.hasKles();
 			child.getMunicipality();
 			touchChildren(child.getChildren());
 		});
