@@ -145,6 +145,7 @@ public class OrgUnitWithKLEServiceImpl implements OrgUnitWithKLEService {
 				Kle kle = kleService.getKle(kleNumber);
 				orgUnit.removeKle(kle, assignmentType);
 				persistence.getEm().persist(orgUnit);
+				persistence.getEm().flush();   // <---- Denne linje tilføjet
 				success = true;
 			} catch (PersistenceException ex) {
 				log.error("An error occured while removing KLE from OrgUnit.",ex);
@@ -154,7 +155,6 @@ public class OrgUnitWithKLEServiceImpl implements OrgUnitWithKLEService {
 
 		return success;
 	}
-
 	@Override
 	public boolean containsKLE(OrgUnit ou, KleAssignmentType assignmentType, String kleNumber) {
 		return ou.getKles(assignmentType).stream().anyMatch(kle->kle.getNumber().equals(kleNumber));
