@@ -19,7 +19,9 @@ import java.util.stream.StreamSupport;
 public class ProviderRepository {
 
 	private final Map<Long, IdentityProvider> providers = new HashMap<>();
-
+	private static final String PROD = "https://os2sso.miracle.dk/";
+	// NOTE not all municipalities are configured for test.
+	private static final String TEST = "https://os2sso-test.miracle.dk/";
 
 	@Inject
 	private ConfigService configService;
@@ -30,7 +32,7 @@ public class ProviderRepository {
 		String clientSecret = configService.getClientSecret();
 		providers.put(2L, IdentityProvider.builder()
 				.id(2).name("OS2 SSO")
-				.url("https://os2sso.miracle.dk/")
+				.url(PROD)
 				.clientId(clientId)
 				.clientSecret(clientSecret)
 				.build()
