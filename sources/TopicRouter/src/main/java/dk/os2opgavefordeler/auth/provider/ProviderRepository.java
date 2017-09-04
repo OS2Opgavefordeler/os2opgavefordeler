@@ -18,36 +18,37 @@ import java.util.stream.StreamSupport;
 @ApplicationScoped
 public class ProviderRepository {
 
-    private final Map<Long, IdentityProvider> providers = new HashMap<>();
-    
-    @Inject
-    private ConfigService configService;
+	private final Map<Long, IdentityProvider> providers = new HashMap<>();
 
-    @PostConstruct
-    public void init() {
-        String clientId = configService.getClientId();
-        String clientSecret = configService.getClientSecret();
-        providers.put(2L, IdentityProvider.builder()
-                .id(2).name("OS2 SSO")
-                .url("https://os2sso.miracle.dk/")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .build()
-        );
-    }
 
-    public Optional<IdentityProvider> findProvider(long id) {
-        return Optional.ofNullable(providers.get(id));
-    }
+	@Inject
+	private ConfigService configService;
 
-    public Iterable<IdentityProvider> identityProviderList() {
-        return providers.values();
-    }
+	@PostConstruct
+	public void init() {
+		String clientId = configService.getClientId();
+		String clientSecret = configService.getClientSecret();
+		providers.put(2L, IdentityProvider.builder()
+				.id(2).name("OS2 SSO")
+				.url("https://os2sso.miracle.dk/")
+				.clientId(clientId)
+				.clientSecret(clientSecret)
+				.build()
+		);
+	}
 
-    public List<IdentityProviderPO> identityProviderPOList() {
-        return StreamSupport.stream(identityProviderList().spliterator(), false)
-                .map(IdentityProviderPO::new)
-                .collect(Collectors.toList());
-    }
+	public Optional<IdentityProvider> findProvider(long id) {
+		return Optional.ofNullable(providers.get(id));
+	}
+
+	public Iterable<IdentityProvider> identityProviderList() {
+		return providers.values();
+	}
+
+	public List<IdentityProviderPO> identityProviderPOList() {
+		return StreamSupport.stream(identityProviderList().spliterator(), false)
+				.map(IdentityProviderPO::new)
+				.collect(Collectors.toList());
+	}
 
 }
