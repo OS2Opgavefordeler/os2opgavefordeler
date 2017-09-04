@@ -237,31 +237,16 @@ public class OrgUnit implements Serializable, IHasChildren<OrgUnit> {
 	}
 
 	public void removeKle(Kle kle, KleAssignmentType assignmentType) {
-		System.out.println("Entering removeKle for OrgUnit: " + this.name);
-		System.out.println("Attempting to remove: " + kle.getNumber() + " / " + assignmentType);
-
-		boolean found = false;
 		for (Iterator<OuKleAssignment> iterator = this.kles.iterator(); iterator.hasNext();) {
 			OuKleAssignment ouKleAssignment = iterator.next();
-
-			System.out.println("Inspecting: " + ouKleAssignment.getKle().getNumber() + " / " + ouKleAssignment.getAssignmentType());
-
 			if (ouKleAssignment.getAssignmentType().equals(assignmentType) && ouKleAssignment.getKle().getNumber().equals(kle.getNumber())) {
-				System.out.println("Found match - removing");
-
 				ouKleAssignment.setOu(null);
 				ouKleAssignment.setKle(null);
 				iterator.remove();
-
-				found = true;
 			}
 		}
-
-		if (!found) {
-			System.out.println("Found no matching KLE assignment on OrgUnit");
-		}
 	}
-	public boolean hasKles() {		
+	public boolean hasKles() {
 		return !kles.isEmpty();
 	}
 
