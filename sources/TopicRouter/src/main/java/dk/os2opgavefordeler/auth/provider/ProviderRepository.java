@@ -18,36 +18,39 @@ import java.util.stream.StreamSupport;
 @ApplicationScoped
 public class ProviderRepository {
 
-    private final Map<Long, IdentityProvider> providers = new HashMap<>();
-    
-    @Inject
-    private ConfigService configService;
+	private final Map<Long, IdentityProvider> providers = new HashMap<>();
+	private static final String PROD = "https://os2sso.miracle.dk/";
+	// NOTE not all municipalities are configured for test.
+	private static final String TEST = "https://os2sso-test.miracle.dk/";
 
-    @PostConstruct
-    public void init() {
-        String clientId = configService.getClientId();
-        String clientSecret = configService.getClientSecret();
-        providers.put(2L, IdentityProvider.builder()
-                .id(2).name("OS2 SSO")
-                .url("https://os2sso.miracle.dk/")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .build()
-        );
-    }
+	@Inject
+	private ConfigService configService;
 
-    public Optional<IdentityProvider> findProvider(long id) {
-        return Optional.ofNullable(providers.get(id));
-    }
+	@PostConstruct
+	public void init() {
+		String clientId = configService.getClientId();
+		String clientSecret = configService.getClientSecret();
+		providers.put(2L, IdentityProvider.builder()
+				.id(2).name("OS2 SSO")
+				.url(PROD)
+				.clientId(clientId)
+				.clientSecret(clientSecret)
+				.build()
+		);
+	}
 
-    public Iterable<IdentityProvider> identityProviderList() {
-        return providers.values();
-    }
+	public Optional<IdentityProvider> findProvider(long id) {
+		return Optional.ofNullable(providers.get(id));
+	}
 
-    public List<IdentityProviderPO> identityProviderPOList() {
-        return StreamSupport.stream(identityProviderList().spliterator(), false)
-                .map(IdentityProviderPO::new)
-                .collect(Collectors.toList());
-    }
+	public Iterable<IdentityProvider> identityProviderList() {
+		return providers.values();
+	}
+
+	public List<IdentityProviderPO> identityProviderPOList() {
+		return StreamSupport.stream(identityProviderList().spliterator(), false)
+				.map(IdentityProviderPO::new)
+				.collect(Collectors.toList());
+	}
 
 }

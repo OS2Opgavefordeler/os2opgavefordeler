@@ -3,6 +3,7 @@ package dk.os2opgavefordeler.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -235,11 +236,17 @@ public class OrgUnit implements Serializable, IHasChildren<OrgUnit> {
 		}
 	}
 
-	public void removeKle(Kle kle, KleAssignmentType assignmentType){
-		this.kles.removeIf(x->x.getAssignmentType().equals(assignmentType) && x.getKle().equals(kle));
+	public void removeKle(Kle kle, KleAssignmentType assignmentType) {
+		for (Iterator<OuKleAssignment> iterator = this.kles.iterator(); iterator.hasNext();) {
+			OuKleAssignment ouKleAssignment = iterator.next();
+			if (ouKleAssignment.getAssignmentType().equals(assignmentType) && ouKleAssignment.getKle().getNumber().equals(kle.getNumber())) {
+				ouKleAssignment.setOu(null);
+				ouKleAssignment.setKle(null);
+				iterator.remove();
+			}
+		}
 	}
-
-	public boolean hasKles() {		
+	public boolean hasKles() {
 		return !kles.isEmpty();
 	}
 
