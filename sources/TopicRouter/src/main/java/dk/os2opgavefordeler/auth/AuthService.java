@@ -43,9 +43,7 @@ public class AuthService {
 	}
 
 	/**
-	 * Checks wether the user has admin rights.
-	 *
-	 * @return true if the user has admin rights.
+	 * Checks whether the user has system admin rights.
 	 */
 	public boolean isAdmin() { return userService.isAdmin(currentUser().getEmail()); }
 

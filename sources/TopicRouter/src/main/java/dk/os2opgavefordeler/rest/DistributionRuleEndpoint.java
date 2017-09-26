@@ -247,11 +247,6 @@ public class DistributionRuleEndpoint extends Endpoint {
 	@Path("/buildRules")
 	@AdminRequired
 	public Response buildRulesForMunicipality(@QueryParam("municipalityId") long municipalityId) {
-		try {
-			verifyMunicipalityIdForMunicipalityAdmin(municipalityId);
-		} catch (ValidationException ve) {
-			return badRequest(ve.getMessage());
-		}
 		distributionService.buildRulesForMunicipality(municipalityId);
 		return ok();
 	}
