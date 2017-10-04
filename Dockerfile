@@ -10,6 +10,7 @@ RUN /opt/jboss/wildfly/bin/add-user.sh admin admin --silent
 ADD environment/docker/commands.cli /tmp/system_properties.cli
 
 ADD sources/TopicRouter/target/TopicRouter.war /opt/jboss/wildfly/standalone/deployments/
+ADD lib/h2console.war /opt/jboss/wildfly/standalone/deployments/
 
 # Expose the ports we're interested in
 EXPOSE 8080 9990
