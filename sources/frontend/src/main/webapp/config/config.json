@@ -4,7 +4,7 @@
 		"version": "2.0.0-SNAPSHOT"
 	},
 	"test": {
-		"serverUrl": "http://os2opgavefordeler-test.miracle.dk/rest",
+		"serverUrl": "https://os2opgavefordeler-test.miracle.dk/rest",
 		"version": "2.0.0-SNAPSHOT"
 	},
 	"prod": {
