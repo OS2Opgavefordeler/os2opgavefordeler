@@ -1,3 +1,3 @@
-The OS2opgavefordeler project has been moved to BitBucket. It can be found here
+The OS2opgavefordeler project is archived and is no longer actively maintained as an OS2 product.
 
-https://bitbucket.org/os2offdig/os2opgavefordeler
+Use the source code at your own risk.
